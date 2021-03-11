@@ -1,16 +1,14 @@
+package main.modules;
+
+import main.src.Token;
+
 import java.io.*;
-import java.util.ArrayList;
 
 public class Lexer {
 
     enum CharType {
         DIGIT, LETTER, AST, FS, PLUS, MINUS, EQUAL, EXC,
         LT, GT, LB, RB, COMMA, SEMI, PERIOD, LP, RP, WS
-    }
-
-    enum Classification {
-        $mop, $int, $var, $addop, $assign, $relop, $negate,
-        $lb, $rb, $comma, $semi, $period, $lp, $rp
     }
 
     static int[][] stateTable = {
@@ -149,59 +147,59 @@ public class Lexer {
                     finishWithError();
                     break;
                 case(3):
-                    bufferHandler(Classification.$int);
+                    bufferHandler(Token.Classification.$int);
                     mapState(0, value, type);
                     break;
                 case(5):
-                    bufferHandler(Classification.$var);
+                    bufferHandler(Token.Classification.$var);
                     mapState(0, value, type);
                     break;
                 case(10):
-                    bufferHandler(Classification.$mop);
+                    bufferHandler(Token.Classification.$mop);
                     mapState(0, value, type);
                     break;
                 case(12):
-                    bufferHandler(Classification.$addop);
+                    bufferHandler(Token.Classification.$addop);
                     mapState(0, value, type);
                     break;
                 case(14):
-                    bufferHandler(Classification.$assign);
+                    bufferHandler(Token.Classification.$assign);
                     mapState(0, value, type);
                     break;
                 case(17):
-                    bufferHandler(Classification.$negate);
+                    bufferHandler(Token.Classification.$negate);
                     mapState(0, value, type);
                     break;
                 case(19):
-                    bufferHandler(Classification.$relop);
+                    bufferHandler(Token.Classification.$relop);
                     mapState(0, value, type);
                     break;
                 case(21):
-                    bufferHandler(Classification.$lb);
+                    bufferHandler(Token.Classification.$lb);
                     mapState(0, value, type);
                     break;
                 case(23):
-                    bufferHandler(Classification.$rb);
+                    bufferHandler(Token.Classification.$rb);
                     mapState(0, value, type);
                     break;
                 case(25):
-                    bufferHandler(Classification.$comma);
+                    bufferHandler(Token.Classification.$comma);
                     mapState(0, value, type);
                     break;
                 case(27):
-                    bufferHandler(Classification.$semi);
+                    bufferHandler(Token.Classification.$semi);
                     mapState(0, value, type);
                     break;
                 case(29):
-                    bufferHandler(Classification.$period);
+                    bufferHandler(Token.Classification.$period);
                     mapState(0, value, type);
                     break;
                 case(31):
-                    bufferHandler(Classification.$lp);
+                    bufferHandler(Token.Classification.$lp);
                     mapState(0, value, type);
                     break;
                 case(33):
-                    bufferHandler(Classification.$rp);
+                    bufferHandler(Token.Classification.$rp);
                     mapState(0, value, type);
                     break;
                 case(34):
@@ -219,7 +217,7 @@ public class Lexer {
         }
     }
 
-    public static void bufferHandler(Classification classification) {
+    public static void bufferHandler(Token.Classification classification) {
         // From here, the 'classification' will need further inspection (not implemented yet) in order
         // to determine the reserved keywords. For now, every string is classified as a $var
         System.out.println(buffer + " --- " + classification);
