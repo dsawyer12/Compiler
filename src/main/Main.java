@@ -13,7 +13,8 @@ public class Main {
 //        Lexer lexer = new Lexer();
 //        lexer.scan(program);
 
-        Warshall.runClosure();
+//        Warshall.runClosure();
+        Warshall.q2();
     }
 }
 
