@@ -1,20 +1,16 @@
 package main;
 
 import main.modules.Lexer;
-import main.src.Warshall;
 
 import java.io.File;
 
 public class Main {
 
     public static void main(String[] args) {
-//        File program = new File("assets/program.txt");
-//
-//        Lexer lexer = new Lexer();
-//        lexer.scan(program);
+        File program = new File("assets/program.txt");
 
-//        Warshall.runClosure();
-        Warshall.q2();
+        Lexer lexer = new Lexer();
+        lexer.scan(program);
     }
 }
 

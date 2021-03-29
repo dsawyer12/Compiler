@@ -7,46 +7,6 @@ import java.util.*;
 
 public class Warshall {
 
-    public static HashMap<Character, ArrayList<Character>> map = new HashMap<>();
-    public static class Head {
-        int row, column;
-
-        public Head(int row, int column) {
-            this.row = row;
-            this.column = column;
-        }
-
-        public int getRow() {
-            return row;
-        }
-
-        public void setRow(int row) {
-            this.row = row;
-        }
-
-        public int getColumn() {
-            return column;
-        }
-
-        public void setColumn(int column) {
-            this.column = column;
-        }
-    }
-    public static NodeStack<Head> last = new NodeStack<>();
-    public static char[] nodes = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J'};
-    public static int[][] mtx = {
-            //   A   B   C   D   E   F   G   H   J
-            {1,  1,  1,  2,  0,  0,  0,  0,  0}, // A
-            {1,  1,  2,  1,  0,  0,  0,  0,  0}, // B
-            {0,  0,  1,  1,  0,  0,  0,  0,  0}, // C
-            {0,  0,  0,  1,  0,  0,  0,  0,  0}, // D
-            {0,  0,  0,  0,  1,  0,  0,  0,  0}, // E
-            {0,  0,  2,  2,  0,  1,  1,  1,  0}, // F
-            {0,  0,  1,  2,  1,  1,  1,  2,  2}, // G
-            {0,  0,  0,  0,  0,  1,  0,  1,  1}, // H
-            {0,  0,  0,  0,  0,  0,  0,  0,  1}, // J
-    };
-
     enum operators {$WHILE, $IF, $THEN, $ASSIGN, $PLUS, $EQUAL, $DO, $DELIM}
 
     /* The following matrix is the result of,
@@ -73,10 +33,6 @@ public class Warshall {
             {0,  0,  0,  0,  0,  0,  0,  1,    0,  0,  0,  0,  0,  0,  0,  0}    // 16
     };
 
-    static int[][] test = {
-
-    };
-
     public static void runClosure() {
         // Begin Warshall's Algorithm
         for (int i = 0; i < matrix.length; i++) {
@@ -89,6 +45,15 @@ public class Warshall {
             }
         }
         // End Warshall's Algorithm
+
+        // Find FIRST*
+        for (int i = 0; i < matrix.length; i++) {
+            for (int j = 0; j < matrix.length; j++) {
+                if (i == j)
+                    matrix[i][j] = 1;
+            }
+        }
+        // End FIRST*
 
         // Create resulting precedence function.
         String[][] pFunction = new String[3][9];
@@ -130,56 +95,6 @@ public class Warshall {
             writer.close();
         } catch (IOException e) {
             System.out.println(e.getMessage());
-        }
-    }
-
-    public static void q2() {
-        int current;
-        for (int i = 0; i < mtx.length; i++) {
-            for (int j = 0; j < mtx.length; j++) {
-                current = mtx[i][j];
-                if (current == 1)
-                    addNode(i, j);
-                else if(current == 2) {
-                    addNode(i, j);
-                    last.push(new Head(i, j));
-                    int temp;
-
-                    while (!last.isEmpty()) {
-                        for (int k = 0; k < mtx[j].length; k++) {
-                            temp = mtx[j][k];
-                            if (temp == 1)
-                                addNode(i, j);
-                            else if(temp == 2) {
-                                addNode(i, j);
-                                last.push(new Head(i, j));
-                            }
-                        }
-                        last.pop();
-                    }
-                }
-            }
-        }
-        print();
-    }
-
-    public static void addNode(int i, int j) {
-        if (map.get(nodes[i]) != null) {
-            if (!map.get(nodes[i]).contains(nodes[j]))
-                map.get(nodes[i]).add(nodes[j]);
-        } else {
-            map.put(nodes[i], new ArrayList<>());
-            map.get(nodes[i]).add(nodes[j]);
-        }
-    }
-
-    public static void print() {
-        for (Map.Entry<Character, ArrayList<Character>> entry : map.entrySet()) {
-            System.out.print(entry.getKey() + " ---> ");
-            List<Character> list = entry.getValue();
-            for (int i = 0; i < list.size(); i++)
-                System.out.print(list.get(i) + " | ");
-            System.out.println();
         }
     }
 }

@@ -11,6 +11,8 @@ public class Lexer {
         LT, GT, LB, RB, COMMA, SEMI, PERIOD, LP, RP, WS
     }
 
+    enum ReservedKey { $CONST, $IF, $VAR, $THEN, $PROCEDURE, $WHILE, $CALL, $DO, $ODD, $CLASS }
+
     static int[][] stateTable = {
             {2, 4, 6, 7, 11, 11, 13, 15, 18, 18, 20, 22, 24, 26, 28, 30, 32, 0},
             {},
@@ -218,8 +220,9 @@ public class Lexer {
     }
 
     public static void bufferHandler(Token.Classification classification) {
-        // From here, the 'classification' will need further inspection (not implemented yet) in order
-        // to determine the reserved keywords. For now, every string is classified as a $var
+
+
+
         System.out.println(buffer + " --- " + classification);
         try {
             writer.append(buffer.toString()).append(" --- ").append(classification.toString());
@@ -234,3 +237,41 @@ public class Lexer {
         System.out.println("Error: Finished at state 1");
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
