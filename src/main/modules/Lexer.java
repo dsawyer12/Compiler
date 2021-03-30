@@ -220,12 +220,36 @@ public class Lexer {
     }
 
     public static void bufferHandler(Token.Classification classification) {
+        String valueType;
+        if (classification.equals(Token.Classification.$var)) {
+            if (buffer.toString().equals("CONST"))
+                valueType = ReservedKey.$CONST.toString();
+            else if (buffer.toString().equals("IF"))
+                valueType = ReservedKey.$IF.toString();
+            else if (buffer.toString().equals("VAR"))
+                valueType = ReservedKey.$VAR.toString();
+            else if (buffer.toString().equals("THEN"))
+                valueType = ReservedKey.$THEN.toString();
+            else if (buffer.toString().equals("PROCEDURE"))
+                valueType = ReservedKey.$PROCEDURE.toString();
+            else if (buffer.toString().equals("WHILE"))
+                valueType = ReservedKey.$WHILE.toString();
+            else if (buffer.toString().equals("CALL"))
+                valueType = ReservedKey.$CALL.toString();
+            else if (buffer.toString().equals("DO"))
+                valueType = ReservedKey.$DO.toString();
+            else if (buffer.toString().equals("ODD"))
+                valueType = ReservedKey.$ODD.toString();
+            else if (buffer.toString().equals("CLASS"))
+                valueType = ReservedKey.$CLASS.toString();
+            else
+                valueType = "$ID";
+        } else
+            valueType = classification.toString();
 
-
-
-        System.out.println(buffer + " --- " + classification);
+        System.out.println(buffer + " --- " + valueType);
         try {
-            writer.append(buffer.toString()).append(" --- ").append(classification.toString());
+            writer.append(buffer.toString()).append(" --- ").append(valueType);
             writer.newLine();
         } catch (IOException e) {
             System.out.println(e.getMessage());
