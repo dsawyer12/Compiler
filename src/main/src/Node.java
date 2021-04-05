@@ -4,12 +4,6 @@ public class Node<T> {
     private T item;
     Node<T> next, last;
 
-    public Node() {
-        item = null;
-        next = null;
-        last = null;
-    }
-
     public Node(T item) {
         this.item = item;
         next = null;

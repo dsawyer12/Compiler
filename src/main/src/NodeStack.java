@@ -20,7 +20,7 @@ public class NodeStack<T> implements IStack<T> {
 
     @Override
     public void push(T item) {
-        Node<T> newNode = new Node<>();
+        Node<T> newNode = new Node<>(item);
         if (top != null) {
             top.setNext(newNode);
             newNode.setLast(top);

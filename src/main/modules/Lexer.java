@@ -1,6 +1,7 @@
 package main.modules;
 
 import main.src.Token;
+import main.src.Token.Classification;
 
 import java.io.*;
 
@@ -10,8 +11,6 @@ public class Lexer {
         DIGIT, LETTER, AST, FS, PLUS, MINUS, EQUAL, EXC,
         LT, GT, LB, RB, COMMA, SEMI, PERIOD, LP, RP, WS
     }
-
-    enum ReservedKey { $CONST, $IF, $VAR, $THEN, $PROCEDURE, $WHILE, $CALL, $DO, $ODD, $CLASS }
 
     static int[][] stateTable = {
             {2, 4, 6, 7, 11, 11, 13, 15, 18, 18, 20, 22, 24, 26, 28, 30, 32, 0},
@@ -149,59 +148,59 @@ public class Lexer {
                     finishWithError();
                     break;
                 case(3):
-                    bufferHandler(Token.Classification.$int);
+                    bufferHandler(Classification.$int);
                     mapState(0, value, type);
                     break;
                 case(5):
-                    bufferHandler(Token.Classification.$var);
+                    bufferHandler(Classification.$id);
                     mapState(0, value, type);
                     break;
                 case(10):
-                    bufferHandler(Token.Classification.$mop);
+                    bufferHandler(Classification.$mop);
                     mapState(0, value, type);
                     break;
                 case(12):
-                    bufferHandler(Token.Classification.$addop);
+                    bufferHandler(Classification.$addop);
                     mapState(0, value, type);
                     break;
                 case(14):
-                    bufferHandler(Token.Classification.$assign);
+                    bufferHandler(Classification.$assign);
                     mapState(0, value, type);
                     break;
                 case(17):
-                    bufferHandler(Token.Classification.$negate);
+                    bufferHandler(Classification.$negate);
                     mapState(0, value, type);
                     break;
                 case(19):
-                    bufferHandler(Token.Classification.$relop);
+                    bufferHandler(Classification.$relop);
                     mapState(0, value, type);
                     break;
                 case(21):
-                    bufferHandler(Token.Classification.$lb);
+                    bufferHandler(Classification.$lb);
                     mapState(0, value, type);
                     break;
                 case(23):
-                    bufferHandler(Token.Classification.$rb);
+                    bufferHandler(Classification.$rb);
                     mapState(0, value, type);
                     break;
                 case(25):
-                    bufferHandler(Token.Classification.$comma);
+                    bufferHandler(Classification.$comma);
                     mapState(0, value, type);
                     break;
                 case(27):
-                    bufferHandler(Token.Classification.$semi);
+                    bufferHandler(Classification.$semi);
                     mapState(0, value, type);
                     break;
                 case(29):
-                    bufferHandler(Token.Classification.$period);
+                    bufferHandler(Classification.$period);
                     mapState(0, value, type);
                     break;
                 case(31):
-                    bufferHandler(Token.Classification.$lp);
+                    bufferHandler(Classification.$lp);
                     mapState(0, value, type);
                     break;
                 case(33):
-                    bufferHandler(Token.Classification.$rp);
+                    bufferHandler(Classification.$rp);
                     mapState(0, value, type);
                     break;
                 case(34):
@@ -219,37 +218,33 @@ public class Lexer {
         }
     }
 
-    public static void bufferHandler(Token.Classification classification) {
-        String valueType;
-        if (classification.equals(Token.Classification.$var)) {
+    public static void bufferHandler(Classification classification) {
+        if (classification.equals(Classification.$id)) {
             if (buffer.toString().equals("CONST"))
-                valueType = ReservedKey.$CONST.toString();
+                classification = Classification.$CONST;
             else if (buffer.toString().equals("IF"))
-                valueType = ReservedKey.$IF.toString();
+                classification = Classification.$IF;
             else if (buffer.toString().equals("VAR"))
-                valueType = ReservedKey.$VAR.toString();
+                classification = Classification.$VAR;
             else if (buffer.toString().equals("THEN"))
-                valueType = ReservedKey.$THEN.toString();
+                classification = Classification.$THEN;
             else if (buffer.toString().equals("PROCEDURE"))
-                valueType = ReservedKey.$PROCEDURE.toString();
+                classification = Classification.$PROC;
             else if (buffer.toString().equals("WHILE"))
-                valueType = ReservedKey.$WHILE.toString();
+                classification = Classification.$WHILE;
             else if (buffer.toString().equals("CALL"))
-                valueType = ReservedKey.$CALL.toString();
+                classification = Classification.$CALL;
             else if (buffer.toString().equals("DO"))
-                valueType = ReservedKey.$DO.toString();
+                classification = Classification.$DO;
             else if (buffer.toString().equals("ODD"))
-                valueType = ReservedKey.$ODD.toString();
+                classification = Classification.$ODD;
             else if (buffer.toString().equals("CLASS"))
-                valueType = ReservedKey.$CLASS.toString();
-            else
-                valueType = "$ID";
-        } else
-            valueType = classification.toString();
+                classification = Classification.$CLASS;
+        }
 
-        System.out.println(buffer + " --- " + valueType);
+        System.out.println(buffer + " --- " + classification.toString());
         try {
-            writer.append(buffer.toString()).append(" --- ").append(valueType);
+            writer.append(buffer.toString()).append(" --- ").append(classification.toString());
             writer.newLine();
         } catch (IOException e) {
             System.out.println(e.getMessage());
