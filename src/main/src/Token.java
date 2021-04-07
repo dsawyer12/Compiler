@@ -3,9 +3,9 @@ package main.src;
 public class Token {
 
     public enum Classification {
-        $mop, $int, $id, $addop, $assign, $relop, $negate, $lb,
-        $rb, $comma, $semi, $period, $lp, $rp, $CONST, $IF, $VAR,
-        $THEN, $PROC, $WHILE, $CALL, $DO, $ODD, $CLASS
+        MOP, INT, ID, ADDOP, ASSIGN, RELOP, NEGATE, LB,
+        RB, COMMA, SEMI, PERIOD, LP, RP, CONST, IF, VAR,
+        THEN, PROC, WHILE, CALL, DO, ODD, CLASS
     }
 
     private String value;

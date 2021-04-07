@@ -1,16 +1,11 @@
 package main.modules;
 
-import main.src.Token;
+import main.enums.CharType;
 import main.src.Token.Classification;
 
 import java.io.*;
 
 public class Lexer {
-
-    enum CharType {
-        DIGIT, LETTER, AST, FS, PLUS, MINUS, EQUAL, EXC,
-        LT, GT, LB, RB, COMMA, SEMI, PERIOD, LP, RP, WS
-    }
 
     static int[][] stateTable = {
             {2, 4, 6, 7, 11, 11, 13, 15, 18, 18, 20, 22, 24, 26, 28, 30, 32, 0},
@@ -148,59 +143,59 @@ public class Lexer {
                     finishWithError();
                     break;
                 case(3):
-                    bufferHandler(Classification.$int);
+                    bufferHandler(Classification.INT);
                     mapState(0, value, type);
                     break;
                 case(5):
-                    bufferHandler(Classification.$id);
+                    bufferHandler(Classification.ID);
                     mapState(0, value, type);
                     break;
                 case(10):
-                    bufferHandler(Classification.$mop);
+                    bufferHandler(Classification.MOP);
                     mapState(0, value, type);
                     break;
                 case(12):
-                    bufferHandler(Classification.$addop);
+                    bufferHandler(Classification.ADDOP);
                     mapState(0, value, type);
                     break;
                 case(14):
-                    bufferHandler(Classification.$assign);
+                    bufferHandler(Classification.ASSIGN);
                     mapState(0, value, type);
                     break;
                 case(17):
-                    bufferHandler(Classification.$negate);
+                    bufferHandler(Classification.NEGATE);
                     mapState(0, value, type);
                     break;
                 case(19):
-                    bufferHandler(Classification.$relop);
+                    bufferHandler(Classification.RELOP);
                     mapState(0, value, type);
                     break;
                 case(21):
-                    bufferHandler(Classification.$lb);
+                    bufferHandler(Classification.LB);
                     mapState(0, value, type);
                     break;
                 case(23):
-                    bufferHandler(Classification.$rb);
+                    bufferHandler(Classification.RB);
                     mapState(0, value, type);
                     break;
                 case(25):
-                    bufferHandler(Classification.$comma);
+                    bufferHandler(Classification.COMMA);
                     mapState(0, value, type);
                     break;
                 case(27):
-                    bufferHandler(Classification.$semi);
+                    bufferHandler(Classification.SEMI);
                     mapState(0, value, type);
                     break;
                 case(29):
-                    bufferHandler(Classification.$period);
+                    bufferHandler(Classification.PERIOD);
                     mapState(0, value, type);
                     break;
                 case(31):
-                    bufferHandler(Classification.$lp);
+                    bufferHandler(Classification.LP);
                     mapState(0, value, type);
                     break;
                 case(33):
-                    bufferHandler(Classification.$rp);
+                    bufferHandler(Classification.RP);
                     mapState(0, value, type);
                     break;
                 case(34):
@@ -219,27 +214,27 @@ public class Lexer {
     }
 
     public static void bufferHandler(Classification classification) {
-        if (classification.equals(Classification.$id)) {
+        if (classification.equals(Classification.ID)) {
             if (buffer.toString().equals("CONST"))
-                classification = Classification.$CONST;
+                classification = Classification.CONST;
             else if (buffer.toString().equals("IF"))
-                classification = Classification.$IF;
+                classification = Classification.IF;
             else if (buffer.toString().equals("VAR"))
-                classification = Classification.$VAR;
+                classification = Classification.VAR;
             else if (buffer.toString().equals("THEN"))
-                classification = Classification.$THEN;
+                classification = Classification.THEN;
             else if (buffer.toString().equals("PROCEDURE"))
-                classification = Classification.$PROC;
+                classification = Classification.PROC;
             else if (buffer.toString().equals("WHILE"))
-                classification = Classification.$WHILE;
+                classification = Classification.WHILE;
             else if (buffer.toString().equals("CALL"))
-                classification = Classification.$CALL;
+                classification = Classification.CALL;
             else if (buffer.toString().equals("DO"))
-                classification = Classification.$DO;
+                classification = Classification.DO;
             else if (buffer.toString().equals("ODD"))
-                classification = Classification.$ODD;
+                classification = Classification.ODD;
             else if (buffer.toString().equals("CLASS"))
-                classification = Classification.$CLASS;
+                classification = Classification.CLASS;
         }
 
         System.out.println(buffer + " --- " + classification.toString());
