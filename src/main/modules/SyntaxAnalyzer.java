@@ -1,16 +1,18 @@
 package main.modules;
 
-import main.enums.Classification;
-import main.Productions;
-import main.src.NodeStack;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 
+import main.Productions;
+import main.enums.Classification;
+import main.enums.Precedence;
+import main.src.Logger;
+import main.src.NodeStack;
+
+import static main.enums.Precedence.*;
 import static main.enums.Classification.*;
 
 
@@ -18,162 +20,152 @@ public class SyntaxAnalyzer {
 
     public static class Node {
         String token;
-        int precedence, state;
         Classification classification;
+        Precedence precedence;
 
-        public Node() { }
-
-        Node(String token, int precedence, int state, Classification classification) {
+        Node(String token, Classification classification, Precedence precedence) {
             this.token = token;
-            this.precedence = precedence;
             this.classification = classification;
+            this.precedence = precedence;
         }
     }
 
-    public static int currentState = 0;
+    //  'arr' is a list that is simply used for printing to the console.
+    //  Run to see the handles being made as well as the reductions that happen.
+    public static ArrayList<String> arr = new ArrayList<>();
+    // 'log' is a simple Logging class for console print formatting.
+    public static Logger log = Logger.getInstance();
+    // 'productions' are the reduction mappings when a handle is found.
+    public static Productions productions = new Productions();
+    // 'stack' is a simple Stack implementation in which the tokens are pushed and popped in compliance with the rest of the program.
     public static NodeStack<Node> stack = new NodeStack<>();
+    // 'prevNode' is used for re-comparing the preceding non-terminal after a reduction is made.
     public static Node prevNode;
 
-    // Note that for the given table, 0 -> '', 1 -> '=', 2 -> '<', and 3 -> '>'
-    // 4 = '<>' and 5 = '=>'
-    public static int[][] OPG = {
-            { 0,   1,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0 }, // $
-            { 0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1,   0,   0,   0,   0,   0,   0,   0,   0,   0 }, // CLASS
-            { 0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1,   0,   0,   2,   2,   0,   0,   0 }, // CONST
-            { 0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1,   0,   0,   2,   0,   0,   0,   0 }, // VAR
-            { 0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1,   0,   0,   0,   0,   0,   0 }, // PROC
-            { 0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1,   0,   0,   0,   0,   0,   0 }, // CALL
-            { 0,   0,   0,   0,   0,   0,   0,   1,   0,   0,   2,   0,   0,   0,   2,   0,   0,   0,   2,   2,   2 }, // IF
-            { 0,   0,   0,   0,   0,   2,   2,   0,   2,   0,   0,   2,   3,   2,   0,   0,   0,   2,   0,   0,   0 }, // THEN
-            { 0,   0,   0,   0,   0,   0,   0,   0,   0,   1,   2,   0,   0,   0,   2,   0,   0,   0,   2,   2,   2 }, // WHILE
-            { 0,   0,   0,   0,   0,   2,   2,   0,   2,   0,   0,   2,   3,   2,   0,   0,   0,   2,   0,   0,   0 }, // DO
-            { 0,   0,   0,   0,   0,   0,   0,   3,   0,   3,   0,   0,   0,   0,   2,   0,   0,   0,   2,   0,   2 }, // ODD
-            { 0,   0,   2,   2,   2,   2,   2,   0,   2,   0,   0,   2,   1,   2,   0,   0,   0,   2,   0,   0,   0 }, // LB
-            { 1,   0,   0,   0,   0,   2,   2,   0,   2,   0,   0,   2,   3,   2,   0,   0,   0,   2,   0,   0,   0 }, // RB
-            { 0,   0,   0,   1,   1,   2,   2,   0,   2,   0,   0,   2,   3,   0,   0,   0,   0,   2,   0,   0,   0 }, // SEMI
-            { 0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   2,   1,   0,   0,   2,   0,   2 }, // LP
-            { 0,   0,   0,   0,   0,   0,   0,   3,   0,   3,   0,   1,   3,   3,   0,   3,   0,   0,   3,   3,   3 }, // RP
-            { 0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   3,   0,   0,   3,   1,   0,   0,   0 }, // COMMA
-            { 0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   3,   2,   0,   3,   0,   2,   0,   2 }, // ASSIGN
-            { 0,   0,   0,   0,   0,   0,   0,   3,   0,   3,   0,   0,   0,   3,   2,   3,   0,   0,   3,   3,   2 }, // ADDOP
-            { 0,   0,   0,   0,   0,   0,   0,   3,   0,   3,   0,   0,   0,   0,   2,   0,   0,   0,   2,   0,   2 }, // RELOP
-            { 0,   0,   0,   0,   0,   0,   0,   3,   0,   3,   0,   0,   0,   3,   2,   3,   0,   0,   3,   3,   3 }, // MOP
+    public static int[][] pFunctions = {
+            {1, 2, 2, 24, 2, 7, 22, 2, 22, 2, 7, 9, 10, 11, 12, 15, 12, 20, 2, 15, 7, 2, 24, 22, 7, 12, 7, 9, 11, 7}, // F
+            {1, 2, 2, 15, 2, 3, 3, 7, 7, 2, 7, 8, 9, 10, 11, 20, 12, 3, 8, 2, 3, 16, 2, 2, 12, 7, 15, 9, 11, 7}, // G
     };
 
     public static void analyze(File file) {
-        stack.push(new Node("$", 2, 0, null));
+        // push the program-delimiter into the stack.
+        prevNode = new Node("$",  $, YIELDS);
+        stack.push(prevNode);
 
+        // Read the tokens created by the Lexical analyzer.
         try {
             BufferedReader reader = new BufferedReader(new FileReader(file));
 
             String line;
             while ( (line = reader.readLine()) != null) {
+                // The Lexical Analyzer creates tokens in the form  "tokenName --- Classification"
+                // Therefore, we need to split each token by the Lex format.
                 String[] lineTokens = line.split(" --- ");
 
                 String token = lineTokens[0];
                 String type = lineTokens[1];
-                
-                if (type != null) {
-                    if (type.equals("$"))
-                        handleToken(0, token, null);
-                    else if (type.equals(CLASS.toString()))
-                        handleToken(1, token, CLASS);
-                    else if (type.equals(CONST.toString()))
-                        handleToken(2, token, CONST);
-                    else if (type.equals(VAR.toString()))
-                        handleToken(3, token, VAR);
-                    else if (type.equals(PROC.toString()))
-                        handleToken(4, token, PROC);
-                    else if (type.equals(CALL.toString()))
-                        handleToken(5, token, CALL);
-                    else if (type.equals(IF.toString()))
-                        handleToken(6, token, IF);
-                    else if (type.equals(THEN.toString()))
-                        handleToken(7, token, THEN);
-                    else if (type.equals(WHILE.toString()))
-                        handleToken(8, token, WHILE);
-                    else if (type.equals(DO.toString()))
-                        handleToken(9, token, DO);
-                    else if (type.equals(ODD.toString()))
-                        handleToken(10, token, ODD);
-                    else if (type.equals(LB.toString()))
-                        handleToken(11, token, LB);
-                    else if (type.equals(RB.toString()))
-                        handleToken(12, token, RB);
-                    else if (type.equals(SEMI.toString()))
-                        handleToken(13, token, SEMI);
-                    else if (type.equals(LP.toString()))
-                        handleToken(14, token, LP);
-                    else if (type.equals(RP.toString()))
-                        handleToken(15, token, RP);
-                    else if (type.equals(COMMA.toString()))
-                        handleToken(16, token, COMMA);
-                    else if (type.equals(ASSIGN.toString()))
-                        handleToken(17, token, ASSIGN);
-                    else if (type.equals(ADDOP.toString()))
-                        handleToken(18, token, ADDOP);
-                    else if (type.equals(RELOP.toString()))
-                        handleToken(19, token, RELOP);
-                    else if (type.equals(MOP.toString()))
-                        handleToken(20, token, MOP);
-                    else if (type.equals(ID.toString()))
-                        handleToken(-1, token, ID);
-                    else if (type.equals(INT.toString()))
-                        handleToken(-1, token, INT);
-                }
+
+                Classification classification = Classification.valueOf(type);
+                handleToken(token, classification);
             }
+            // When no more tokens are found, we still need to push the program-delimiter into the stack and continue.
+            handleToken("$", $);
 
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
     }
 
-    private static void handleToken(int nextState, String token, Classification classification) {
-        if (nextState >= 0) {
-            int precedence = OPG[currentState][nextState];
-            currentState = nextState;
-            switch (precedence) {
-                case (1): // The token equals in precedence to the previous.
-                case (2): // The token yields in precedence to the previous.
-                    if (prevNode != null)
-                        prevNode.precedence = precedence;
-                    break;
-                case (3):
-                    // The token takes precedence over the previous. Reduce and Continue...
-                    reduceHandle(token, classification);
-                    break;
-            }
-            prevNode = new Node(token, -1, nextState, classification);
+    private static void handleToken(String token, Classification classification) {
+        // Get the precedence function values based on 'prevNode' and the next token. Then compare them.
+        int f = pFunctions[0][prevNode.classification.ordinal()];
+        int g = pFunctions[1][classification.ordinal()];
+
+        if (f < g) { // 'prevNode' YIELDS in precedence.
+            prevNode.precedence = YIELDS;
+
+            arr.add(prevNode.classification.toString());
+            arr.add(" < ");
+            log.printProgress(arr, classification);
+
+            prevNode = new Node(token, classification, null);
             stack.push(prevNode);
-        } else {
-            // An ID or INT was found. push into the stack and continue...
-            stack.push(new Node(token, -1, currentState, classification));
+        }
+        else if (f == g) { // 'prevNode' EQUALS in precedence.
+            prevNode.precedence = EQUALS;
+
+            arr.add(prevNode.classification.toString());
+            arr.add(" = ");
+            log.printProgress(arr, classification);
+
+            prevNode = new Node(token, classification, null);
+            stack.push(prevNode);
+        }
+        else { // 'prevNode' TAKES precedence. Reduce handle.
+
+            // The below is simply for console printing;
+            // --------------------------------------------------------
+            arr.add(prevNode.classification.toString());
+            arr.add(" > ");
+            log.printHandle(arr, classification);
+            // --------------------------------------------------------
+
+            Classification c = reduceHandle(classification);
+            if (c != null) {
+                // The below is simply for console printing;
+                // --------------------------------------------------------
+                int i = arr.size() - 1;
+                do {
+                    arr.remove(i);
+                    i = arr.size() - 1;
+                } while (!arr.get(i).equals(" < "));
+
+                i = arr.size() - 1;
+                arr.remove(i);
+                i = arr.size() - 1;
+                arr.remove(i);
+                // --------------------------------------------------------
+
+                handleToken(c.toString(), c);
+            }
+            handleToken(token, classification);
         }
     }
 
-    private static void reduceHandle(String token, Classification classification) {
+    public static Classification reduceHandle(Classification next) {
         StringBuilder sb = new StringBuilder();
-        Productions productions = new Productions();
+        Classification reduction = null;
 
+        // Pop the stack until the handle is found.
         if (!stack.isEmpty()) {
             Node node;
-            while(!stack.isEmpty() && stack.peek().precedence != 2) {
+            while(!stack.isEmpty() && stack.peek().precedence != YIELDS) {
                 node = stack.pop();
                 sb.insert(0, " " + node.classification);
             }
             prevNode = stack.peek();
-//            currentState = prevNode.state;
-//            do {
-//                node = stack.pop();
-//                sb.insert(0, node.classification + " ");
-//            } while(!stack.isEmpty() && stack.peek().precedence != 2);
+            String handle = sb.toString().trim();
 
-            Classification c = productions.getReduction(sb.toString());
-            if (c != null)
-                stack.push(new Node(c.toString(), -1, currentState, c));
+            // Reduce the handle using the productions.
+            while (productions.reductionMap.containsKey(handle)) {
+                reduction = productions.reductionMap.get(handle);
+                handle = reduction.toString();
+
+                // I am using the lookahead token to determine when to stop reducing.
+                int f = pFunctions[0][reduction.ordinal()];
+                int g = pFunctions[1][next.ordinal()];
+                if (f < g) break;
+            }
         }
+        return reduction;
     }
 }
+
+
+
+
+
+
 
 
 

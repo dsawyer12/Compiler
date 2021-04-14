@@ -1,0 +1,7 @@
+CLASS LargestCommonDenominator {
+    A = 3;  B = 4;
+
+    IF ODD B THEN {
+        A = B;
+    }
+}

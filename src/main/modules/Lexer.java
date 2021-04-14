@@ -237,7 +237,7 @@ public class Lexer {
                 classification = Classification.CLASS;
         }
 
-        System.out.println(buffer + " --- " + classification.toString());
+        System.out.println(buffer + " --- " + classification);
         try {
             writer.append(buffer.toString()).append(" --- ").append(classification.toString());
             writer.newLine();
