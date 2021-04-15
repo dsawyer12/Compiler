@@ -22,19 +22,22 @@ public class Logger {
         return logger;
     }
 
-    public void print(Object obj) {
-        System.out.println(ANSI_PURPLE + obj.toString() + ANSI_RESET);
-    }
-
-    public void printMeta(Object obj) {
-        System.out.print(ANSI_CYAN + obj.toString() + ANSI_RESET);
-    }
-
     public void printProgress(ArrayList<String> arr, Classification classification) {
         System.out.println();
         for (String s : arr)
-            System.out.print(ANSI_CYAN + s + ANSI_RESET);
-        System.out.print(ANSI_CYAN + classification + ANSI_RESET);
+            printMeta(s);
+        printMeta(classification);
+    }
+
+    public void printToken(String s) {
+        System.out.println();
+        String[] items = s.split(" --- ");
+        if (items.length > 1) {
+            String tokenValue = items[0], tokenType = items[1];
+            printMeta(tokenValue);
+            print(" --- ");
+            printMessage(tokenType);
+        }
     }
 
     public void printHandle(ArrayList<String> arr, Classification classification) {
@@ -55,14 +58,23 @@ public class Logger {
 
         System.out.println();
         for (String str : al)
-            System.out.print(ANSI_CYAN + str + ANSI_RESET);
+            printMeta(str);
+
         while (!temp.isEmpty())
-            System.out.print(ANSI_YELLOW + temp.pop() + ANSI_RESET);
-        System.out.print(ANSI_CYAN + classification + ANSI_RESET);
+            printWarning(temp.pop());
+        printMeta(classification);
+    }
+
+    public void print(Object obj) {
+        System.out.print(ANSI_PURPLE + obj.toString() + ANSI_RESET);
+    }
+
+    public void printMeta(Object obj) {
+        System.out.print(ANSI_CYAN + obj.toString() + ANSI_RESET);
     }
 
     public void printMessage(String message) {
-        System.out.println(ANSI_GREEN + message + ANSI_RESET);
+        System.out.print(ANSI_GREEN + message + ANSI_RESET);
     }
 
     public void printError(String error) {
@@ -70,7 +82,7 @@ public class Logger {
     }
 
     public void printWarning(String warning) {
-        System.out.println(ANSI_YELLOW + warning + ANSI_RESET);
+        System.out.print(ANSI_YELLOW + warning + ANSI_RESET);
     }
 
 

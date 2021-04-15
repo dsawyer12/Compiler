@@ -1,11 +1,17 @@
 package main.modules;
 
 import main.enums.CharType;
-import main.src.Token.Classification;
+import main.enums.TokenType;
+import main.src.Logger;
+
+import static main.enums.TokenType.*;
 
 import java.io.*;
 
 public class Lexer {
+
+    // 'log' is a simple Logging class for console print formatting.
+    public static Logger log = Logger.getInstance();
 
     static int[][] stateTable = {
             {2, 4, 6, 7, 11, 11, 13, 15, 18, 18, 20, 22, 24, 26, 28, 30, 32, 0},
@@ -19,7 +25,7 @@ public class Lexer {
             {8, 8, 9, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
             {8, 8, 8, 34, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8},
             {},
-            {13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13},
+            {12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12},
             {},
             {14, 14, 14, 14, 14, 14, 18, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14},
             {},
@@ -46,17 +52,17 @@ public class Lexer {
     };
     static int currentState = 0;
     static StringBuilder buffer = new StringBuilder();
-    static File symbolTable;
+    static File tokens;
     static BufferedWriter writer;
 
     public Lexer() {
-        symbolTable = new File("assets/symbolTable.txt");
+        tokens = new File("assets/tokens.txt");
     }
 
     public void scan(File program) {
         try {
             BufferedReader reader = new BufferedReader(new FileReader(program));
-            writer = new BufferedWriter(new FileWriter(symbolTable));
+            writer = new BufferedWriter(new FileWriter(tokens));
             int charValue;
 
             while( ((charValue = reader.read()) != -1)) {
@@ -131,7 +137,7 @@ public class Lexer {
             writer.close();
 
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            log.printError(e.getMessage());
         }
     }
 
@@ -143,59 +149,59 @@ public class Lexer {
                     finishWithError();
                     break;
                 case(3):
-                    bufferHandler(Classification.INT);
+                    bufferHandler(INT);
                     mapState(0, value, type);
                     break;
                 case(5):
-                    bufferHandler(Classification.ID);
+                    bufferHandler(ID);
                     mapState(0, value, type);
                     break;
                 case(10):
-                    bufferHandler(Classification.MOP);
+                    bufferHandler(MOP);
                     mapState(0, value, type);
                     break;
                 case(12):
-                    bufferHandler(Classification.ADDOP);
+                    bufferHandler(ADDOP);
                     mapState(0, value, type);
                     break;
                 case(14):
-                    bufferHandler(Classification.ASSIGN);
+                    bufferHandler(ASSIGN);
                     mapState(0, value, type);
                     break;
                 case(17):
-                    bufferHandler(Classification.NEGATE);
+                    bufferHandler(NEGATE);
                     mapState(0, value, type);
                     break;
                 case(19):
-                    bufferHandler(Classification.RELOP);
+                    bufferHandler(RELOP);
                     mapState(0, value, type);
                     break;
                 case(21):
-                    bufferHandler(Classification.LB);
+                    bufferHandler(LB);
                     mapState(0, value, type);
                     break;
                 case(23):
-                    bufferHandler(Classification.RB);
+                    bufferHandler(RB);
                     mapState(0, value, type);
                     break;
                 case(25):
-                    bufferHandler(Classification.COMMA);
+                    bufferHandler(COMMA);
                     mapState(0, value, type);
                     break;
                 case(27):
-                    bufferHandler(Classification.SEMI);
+                    bufferHandler(SEMI);
                     mapState(0, value, type);
                     break;
                 case(29):
-                    bufferHandler(Classification.PERIOD);
+                    bufferHandler(PERIOD);
                     mapState(0, value, type);
                     break;
                 case(31):
-                    bufferHandler(Classification.LP);
+                    bufferHandler(LP);
                     mapState(0, value, type);
                     break;
                 case(33):
-                    bufferHandler(Classification.RP);
+                    bufferHandler(RP);
                     mapState(0, value, type);
                     break;
                 case(34):
@@ -209,46 +215,47 @@ public class Lexer {
                     break;
             }
         } catch (IndexOutOfBoundsException e) {
-            System.out.println(e.getMessage());
+            log.printError(e.getMessage());
         }
     }
 
-    public static void bufferHandler(Classification classification) {
-        if (classification.equals(Classification.ID)) {
+    public static void bufferHandler(TokenType classification) {
+        if (classification.equals(ID)) {
             if (buffer.toString().equals("CONST"))
-                classification = Classification.CONST;
+                classification = CONST;
             else if (buffer.toString().equals("IF"))
-                classification = Classification.IF;
+                classification = IF;
             else if (buffer.toString().equals("VAR"))
-                classification = Classification.VAR;
+                classification = VAR;
             else if (buffer.toString().equals("THEN"))
-                classification = Classification.THEN;
+                classification = THEN;
             else if (buffer.toString().equals("PROCEDURE"))
-                classification = Classification.PROC;
+                classification = PROC;
             else if (buffer.toString().equals("WHILE"))
-                classification = Classification.WHILE;
+                classification = WHILE;
             else if (buffer.toString().equals("CALL"))
-                classification = Classification.CALL;
+                classification = CALL;
             else if (buffer.toString().equals("DO"))
-                classification = Classification.DO;
+                classification = DO;
             else if (buffer.toString().equals("ODD"))
-                classification = Classification.ODD;
+                classification = ODD;
             else if (buffer.toString().equals("CLASS"))
-                classification = Classification.CLASS;
+                classification = CLASS;
         }
 
-        System.out.println(buffer + " --- " + classification);
+        log.printToken(buffer + " --- " + classification);
+
         try {
             writer.append(buffer.toString()).append(" --- ").append(classification.toString());
             writer.newLine();
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            log.printError(e.getMessage());
         }
         buffer = new StringBuilder();
     }
 
     public static void finishWithError() {
-        System.out.println("Error: Finished at state 1");
+        log.printError("Error: Finished at state 1");
     }
 }
 

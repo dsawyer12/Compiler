@@ -2,6 +2,7 @@ package main;
 
 import main.modules.Lexer;
 import main.modules.SyntaxAnalyzer;
+import main.src.Warshall;
 
 import java.io.File;
 
@@ -12,7 +13,8 @@ public class Main {
 
         Lexer lexer = new Lexer();
         lexer.scan(program);
-        SyntaxAnalyzer.analyze(new File("assets/symbolTable.txt"));
+
+        SyntaxAnalyzer.analyze(new File("assets/tokens.txt"));
 
 //        Warshall.runClosure();
     }
