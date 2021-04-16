@@ -33,6 +33,12 @@ public class SyntaxAnalyzer {
         Classification classification;
         Precedence precedence;
 
+        public Node() {
+            this.token = "";
+            this.classification = null;
+            this.precedence = null;
+        }
+
         Node(String token, Classification classification, Precedence precedence) {
             this.token = token;
             this.classification = classification;
@@ -121,10 +127,8 @@ public class SyntaxAnalyzer {
                 String type = lineTokens[1];
 
                 Classification classification = Classification.valueOf(type);
-//                log.newLine();
-//                log.print(state);
-//                stateDrivers driver = stateDrivers.valueOf(type);
-//                state = states[state][driver.ordinal()];
+                log.newLine();
+                log.printError("NEW TOKEN");
                 handleToken(token, classification);
             }
             // When no more tokens are found, we still need to push the program-delimiter into the stack and continue.
@@ -180,46 +184,44 @@ public class SyntaxAnalyzer {
             arr.remove(i);
             // END --------------------------------------------------------
 
-            Node reduction = reduceHandle(token, classification);
+            Node reduction = reduceHandle();
             handleToken(reduction.token, reduction.classification);
             handleToken(token, classification);
         }
+//        log.newLine();
+//        log.printWarning(prevNode.token);
     }
 
-    public static Node reduceHandle(String token, Classification next) {
-        StringBuilder sb = new StringBuilder();
-        // stash is used to maintain the previous token's value in case a quad needs to be generated.
-        Node stash = new Node(prevNode.token, null, null);
+    public static Node reduceHandle() {
+        StringBuilder cb = new StringBuilder();
+        StringBuilder tb = new StringBuilder();
+//         stash is used to maintain the previous token's value in case a quad needs to be generated.
+        Node stash = new Node();
         // 'entries' is used to generate quads when a valid handle is found.
-        ArrayList<Node> entries = new ArrayList<>();
 
         // Pop the stack until the handle is found.
         if (!stack.isEmpty()) {
             Node node;
             while(!stack.isEmpty() && stack.peek().precedence != YIELDS) {
                 node = stack.pop();
-                entries.add(node);
-                sb.insert(0, " " + node.classification);
+                cb.insert(0, " " + node.classification);
+                tb.insert(0, " " + node.token);
             }
+            String handle = cb.toString().trim();
+
+            prevNode.token = tb.toString().trim();
             prevNode = stack.peek();
-            String handle = sb.toString().trim();
+            stash.token = tb.toString().trim();
 
-            // Reduce the handle using the productions.
-            while (productions.reductionMap.containsKey(handle)) {
-//                if (checkState())
-                if (productions.isValidTableEntry(handle))
-                    generateQuad(entries);
-
-                stash.classification = productions.reductionMap.get(handle);
-                handle = stash.classification.toString();
-
-                // Compare the precedence relation with the previous and next token;
-                int f = pFunctions[0][stash.classification.ordinal()];
-                int g = pFunctions[1][next.ordinal()];
-                int h = pFunctions[0][prevNode.classification.ordinal()];
-                int j = pFunctions[1][stash.classification.ordinal()];
-                if (f <= g || h <= j) break;
+            if (productions.isValidTableEntry(handle)) {
+                generateQuad(stash);
             }
+
+            log.newLine();
+            log.print(stash.token);
+
+
+            stash.classification = productions.reductionMap.get(handle);
         }
         return stash;
     }
@@ -271,14 +273,35 @@ public class SyntaxAnalyzer {
 //        }
 //    }
 
-    private static void generateQuad(ArrayList<Node> entries) {
+    private static void generateQuad(Node stash) {
         log.newLine();
         log.printException(prevNode.token);
-        for (Node n : entries) {
-            System.out.println();
-            log.printMessage(n.token);
-            log.print(" --- ");
-            log.printMeta(n.classification);
+
+        // Symbol -> ID, Type -> CD, Address -> [address], Segment -> DS, value -> val
+        switch (prevNode.classification) {
+            case CLASS: { // Add -> ID, pgmName, 0, ?
+
+            }
+            case CONST: { // Add -> ID, CD, (ad + 2), -- if not 0 -- val
+                log.printMessage("CONST " + stash.token);
+                break;
+            }
+            case ASSIGN: { //  Add -> ID, CD, (ad + 2), -- if not 0 -- val
+                log.printMessage("= " + stash.token);
+                break;
+            }
+            case LP: {
+                log.printMessage("( " + stash.token);
+                break;
+            }
+            case ADDOP: {
+                log.printMessage("+ " + stash.token);
+                break;
+            }
+            case MOP: {
+                log.printMessage("* " + stash.token);
+                break;
+            }
         }
     }
 }

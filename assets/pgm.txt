@@ -1,12 +1,8 @@
-CLASS LargestCommonDenominator {
-    CONST A = 3;
-    CONST B = 4;
+CLASS Pgm1 {
+    CONST M = 13;
+    CONST N = 56;
 
-    A = 3 + (B * 4);
-
-    WHILE ODD B DO {
-        IF ODD B THEN {
-                A = B;
-            }
-    }
+    Y = 97;
+    X = M * N + 18 - y;
 }
+
