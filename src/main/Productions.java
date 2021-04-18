@@ -102,10 +102,14 @@ public class Productions {
     }
 
     public boolean isValidTableEntry(String handle) {
-        return handle.equals("TERM MOP F")
+        return handle.equals("CONST SS SEMI")
                 || handle.equals("EXP ADDOP T")
                 || handle.equals("E RELOP E")
                 || handle.equals("ID ASSIGN E");
+    }
+
+    public boolean tableEntry(String handle) {
+        return false;
     }
 }
 

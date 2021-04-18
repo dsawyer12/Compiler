@@ -25,4 +25,15 @@ N --- ID
 - --- ADDOP
 y --- ID
 ; --- SEMI
+IF --- IF
+M --- ID
+< --- RELOP
+Y --- ID
+THEN --- THEN
+{ --- LB
+Y --- ID
+= --- ASSIGN
+X --- ID
+; --- SEMI
+} --- RB
 } --- RB

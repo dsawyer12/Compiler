@@ -137,7 +137,7 @@ public class Lexer {
             writer.close();
 
         } catch (IOException e) {
-            log.printError(e.getMessage());
+            log.printException(e);
         }
     }
 
@@ -215,7 +215,7 @@ public class Lexer {
                     break;
             }
         } catch (IndexOutOfBoundsException e) {
-            log.printError(e.getMessage());
+            log.printException(e);
         }
     }
 
@@ -249,7 +249,7 @@ public class Lexer {
             writer.append(buffer.toString()).append(" --- ").append(classification.toString());
             writer.newLine();
         } catch (IOException e) {
-            log.printError(e.getMessage());
+            log.printException(e);
         }
         buffer = new StringBuilder();
     }

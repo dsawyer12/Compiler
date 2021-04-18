@@ -86,8 +86,8 @@ public class Logger {
     }
 
 
-    public void printException(String exception) {
-        System.out.println(ANSI_BLUE + exception + ANSI_RESET);
+    public void printException(Exception e) {
+        System.out.println(ANSI_BLUE + e.getMessage() + ANSI_RESET);
     }
 
     public void newLine() {

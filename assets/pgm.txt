@@ -4,5 +4,9 @@ CLASS Pgm1 {
 
     Y = 97;
     X = M * N + 18 - y;
+
+    IF M < Y THEN  {
+        Y = X;
+    }
 }
 
