@@ -1,12 +1,14 @@
 package main.src;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SymbolTable {
 
     private static SymbolTable symbolTable = null;
+    public static Map<Object, Symbol> table = new HashMap<>();
     private int address;
-    private ArrayList<Symbol> table;
 
     public static SymbolTable getInstance() {
         if (symbolTable == null)
@@ -15,33 +17,36 @@ public class SymbolTable {
     }
 
     public SymbolTable() {
-        this.table = new ArrayList<>();
+        table = new HashMap<>();
         this.address = 0;
     }
 
     public void startTable(Symbol pgm) {
-        table.add(pgm);
+        table.put(pgm.token, pgm);
     }
 
     public void addSymbol(Symbol symbol) {
         symbol.setAddress(address);
-        table.add(symbol);
-        address = address + 2;
+        table.put(symbol.token, symbol);
+        address += 2;
     }
 
-    public void printTable() {
+    public static Map<Object, Symbol> getTable() {
+        return table;
+    }
+
+    public void printSet() {
         Logger log = Logger.getInstance();
         log.newLine();
         log.printMeta("Symbol\t\tClass\t\tValue\t\tAddress\t\tSegment");
-        for(Symbol s : getInstance().table) {
+        for (Map.Entry<Object, Symbol> item : table.entrySet()) {
             log.newLine();
-            log.print(s.token + "\t\t\t" + s.classification);
-            if (s.value == null)
-                log.print("\t\t\t ");
-            else
-                log.print("\t\t\t" + s.value);
-            log.print("\t\t\t" + s.address
-                    + "\t\t\t" + s.segment);
+            log.printMessage(item.getValue().token + "\t");
+            log.printMessage(item.getValue().classification.toString() + "\t");
+            if (item.getValue().value != null)
+                log.printMessage(item.getValue().value.toString() + "\t");
+            log.printMessage(item.getValue().address + "\t");
+            log.printMessage(item.getValue().segment.toString() + "\t");
         }
     }
 }

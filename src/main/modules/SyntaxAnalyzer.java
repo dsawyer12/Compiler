@@ -7,11 +7,8 @@ import java.util.Map;
 
 import main.Productions;
 import main.enums.Classification;
-import main.src.Symbol;
+import main.src.*;
 import main.src.Symbol.Segment;
-import main.src.Logger;
-import main.src.NodeStack;
-import main.src.SymbolTable;
 
 import static main.enums.Precedence.*;
 import static main.enums.Classification.*;
@@ -40,8 +37,6 @@ public class SyntaxAnalyzer {
     public static NodeStack<Symbol> stack = new NodeStack<>();
     // 'prevNode' is used for re-comparing after a reduction is made.
     public static Symbol prevSymbol;
-    public static Map<Object, Symbol> table = new HashMap<>();
-    public static BufferedWriter dataWriter, codeWriter;
 
     // Function table that drives the parser
     public static int[][] pFunctions = {
@@ -57,8 +52,6 @@ public class SyntaxAnalyzer {
         // Read the tokens created by the Lexical analyzer.
         try {
             BufferedReader reader = new BufferedReader(new FileReader(file));
-            dataWriter = new BufferedWriter(new FileWriter("assets/dataSegment.txt"));
-            codeWriter = new BufferedWriter(new FileWriter("assets/codeSegment.txt"));
 
             String line;
             while ( (line = reader.readLine()) != null) {
@@ -79,7 +72,8 @@ public class SyntaxAnalyzer {
             // When no more tokens are found, we still need to push the program-delimiter into the stack and continue.
             handleToken("$", $);
 
-            SymbolTable.getInstance().printTable();
+            SymbolTable.getInstance().printSet();
+            CodeGenerator.generateCode(SymbolTable.getTable());
 
         } catch (IOException e) {
             log.printException(e);
@@ -174,7 +168,6 @@ public class SyntaxAnalyzer {
             case CD:
                 token = arr[1];
                 value = arr[arr.length - 2];
-                table.put(token, new Symbol(token, symbol.classification, value, Segment.DS));
                 SymbolTable.getInstance().addSymbol(new Symbol(token, symbol.classification, value, Segment.DS));
                 break;
 //            case VD:
@@ -185,7 +178,6 @@ public class SyntaxAnalyzer {
                 for (int i = 0; i < arr.length; i++) {
                     try {
                         int a = Integer.parseInt(arr[i]);
-                        table.put(a, new Symbol(arr[i], INT, a, Segment.DS));
                         SymbolTable.getInstance().addSymbol(new Symbol(arr[i], INT, a, Segment.DS));
                     } catch (NumberFormatException e) {
                         log.newLine();
@@ -202,11 +194,11 @@ public class SyntaxAnalyzer {
         createCode(symbol);
     }
 
-    private static void createCode(Symbol stash) {
-        switch (stash.classification) {
+    private static void createCode(Symbol symbol) {
+        switch (symbol.classification) {
             case ASSIGN: {
                 log.newLine();
-                log.printMessage(stash.toString());
+                log.printMessage(symbol.toString());
             }
             case ADDOP: {
 
