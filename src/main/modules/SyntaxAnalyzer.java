@@ -8,9 +8,11 @@ import java.util.ArrayList;
 
 import main.Productions;
 import main.enums.Classification;
-import main.enums.Precedence;
+import main.src.Symbol;
+import main.src.Symbol.Segment;
 import main.src.Logger;
 import main.src.NodeStack;
+import main.src.SymbolTable;
 
 import static main.enums.Precedence.*;
 import static main.enums.Classification.*;
@@ -28,24 +30,6 @@ public class SyntaxAnalyzer {
         RELATION TO THE PARSING PROCESS.
      */
 
-    public static class Node {
-        String token;
-        Classification classification;
-        Precedence precedence;
-
-        public Node() {
-            this.token = "";
-            this.classification = null;
-            this.precedence = null;
-        }
-
-        Node(String token, Classification classification, Precedence precedence) {
-            this.token = token;
-            this.classification = classification;
-            this.precedence = precedence;
-        }
-    }
-
     //  'arr' is a list that is simply used for printing to the console.
     //  Run to see the handles being made as well as the reductions that happen.
     public static ArrayList<String> arr = new ArrayList<>();
@@ -54,10 +38,10 @@ public class SyntaxAnalyzer {
     // 'productions' are the reduction mappings when a handle is found.
     public static Productions productions = new Productions();
     // 'stack' is a simple Stack implementation in which the tokens are pushed and popped in compliance with the rest of the program.
-    public static NodeStack<Node> stack = new NodeStack<>();
+    public static NodeStack<Symbol> stack = new NodeStack<>();
     // 'prevNode' is used for re-comparing after a reduction is made.
-    public static Node prevNode;
-//    public static int state = 0;
+    public static Symbol prevSymbol;
+    //    public static int state = 0;
 
 //    public static int[][] pFunctions = {
 //            {1, 2, 2, 24, 2, 7, 22, 2, 22, 2, 7, 9, 10, 11, 12, 15, 12, 20, 2, 15, 7, 2, 24, 22, 7, 12, 7, 9, 11, 7}, // F
@@ -110,8 +94,8 @@ public class SyntaxAnalyzer {
 
     public static void analyze(File file) {
         // push the program-delimiter into the stack.
-        prevNode = new Node("$",  $, YIELDS);
-        stack.push(prevNode);
+        prevSymbol = new Symbol("$",  $, YIELDS);
+        stack.push(prevSymbol);
 
         // Read the tokens created by the Lexical analyzer.
         try {
@@ -127,12 +111,16 @@ public class SyntaxAnalyzer {
                 String type = lineTokens[1];
 
                 Classification classification = Classification.valueOf(type);
-                log.newLine();
-                log.printError("NEW TOKEN");
+
+                if (prevSymbol.classification.equals(CLASS) && classification.equals(ID))
+                    SymbolTable.getInstance().startTable(new Symbol(token, PGM, null, Segment.DS));
+
                 handleToken(token, classification);
             }
             // When no more tokens are found, we still need to push the program-delimiter into the stack and continue.
             handleToken("$", $);
+
+            SymbolTable.getInstance().printTable();
 
         } catch (IOException e) {
             System.out.println(e.getMessage());
@@ -141,34 +129,34 @@ public class SyntaxAnalyzer {
 
     private static void handleToken(String token, Classification classification) {
         // Get the precedence function values based on 'prevNode' and the next token. Then compare them.
-        int f = pFunctions[0][prevNode.classification.ordinal()];
+        int f = pFunctions[0][prevSymbol.classification.ordinal()];
         int g = pFunctions[1][classification.ordinal()];
 
         if (f < g) { // 'prevNode' YIELDS in precedence.
-            prevNode.precedence = YIELDS;
+            prevSymbol.precedence = YIELDS;
             // START --------------------------------------------------------
-            arr.add(prevNode.classification.toString());
+            arr.add(prevSymbol.classification.toString());
             arr.add(" < ");
             log.printProgress(arr, classification);
             // END --------------------------------------------------------
 
-            prevNode = new Node(token, classification, null);
-            stack.push(prevNode);
+            prevSymbol = new Symbol(token, classification, null);
+            stack.push(prevSymbol);
         }
         else if (f == g) { // 'prevNode' EQUALS in precedence.
-            prevNode.precedence = EQUALS;
+            prevSymbol.precedence = EQUALS;
             // START --------------------------------------------------------
-            arr.add(prevNode.classification.toString());
+            arr.add(prevSymbol.classification.toString());
             arr.add(" = ");
             log.printProgress(arr, classification);
             // END --------------------------------------------------------
 
-            prevNode = new Node(token, classification, null);
-            stack.push(prevNode);
+            prevSymbol = new Symbol(token, classification, null);
+            stack.push(prevSymbol);
         }
         else { // 'prevNode' TAKES precedence. Reduce handle.
             // START --------------------------------------------------------
-            arr.add(prevNode.classification.toString());
+            arr.add(prevSymbol.classification.toString());
             arr.add(" > ");
             log.printHandle(arr, classification);
 
@@ -184,7 +172,7 @@ public class SyntaxAnalyzer {
             arr.remove(i);
             // END --------------------------------------------------------
 
-            Node reduction = reduceHandle();
+            Symbol reduction = reduceHandle();
             handleToken(reduction.token, reduction.classification);
             handleToken(token, classification);
         }
@@ -192,29 +180,29 @@ public class SyntaxAnalyzer {
 //        log.printWarning(prevNode.token);
     }
 
-    public static Node reduceHandle() {
+    public static Symbol reduceHandle() {
         StringBuilder cb = new StringBuilder();
         StringBuilder tb = new StringBuilder();
 //         stash is used to maintain the previous token's value in case a quad needs to be generated.
-        Node stash = new Node();
+        Symbol stash = new Symbol();
         // 'entries' is used to generate quads when a valid handle is found.
 
         // Pop the stack until the handle is found.
         if (!stack.isEmpty()) {
-            Node node;
+            Symbol symbol;
             while(!stack.isEmpty() && stack.peek().precedence != YIELDS) {
-                node = stack.pop();
-                cb.insert(0, " " + node.classification);
-                tb.insert(0, " " + node.token);
+                symbol = stack.pop();
+                cb.insert(0, " " + symbol.classification);
+                tb.insert(0, " " + symbol.token);
             }
             String handle = cb.toString().trim();
 
-            prevNode.token = tb.toString().trim();
-            prevNode = stack.peek();
+            prevSymbol.token = tb.toString().trim();
+            prevSymbol = stack.peek();
             stash.token = tb.toString().trim();
 
             if (productions.isValidTableEntry(handle)) {
-                generateQuad(stash);
+                addToSymbolTable(stash);
             }
 
             log.newLine();
@@ -273,17 +261,27 @@ public class SyntaxAnalyzer {
 //        }
 //    }
 
-    private static void generateQuad(Node stash) {
+    private static void addToSymbolTable(Symbol stash) {
+        String[] arr = stash.token.split(" ");
         log.newLine();
-        log.printException(prevNode.token);
+        log.printException(prevSymbol.token);
 
         // Symbol -> ID, Type -> CD, Address -> [address], Segment -> DS, value -> val
-        switch (prevNode.classification) {
+        switch (prevSymbol.classification) {
             case CLASS: { // Add -> ID, pgmName, 0, ?
-
+                SymbolTable.getInstance()
+                        .addSymbol(new Symbol(stash.token,
+                        prevSymbol.classification,
+                        null,
+                        Segment.CS));
             }
             case CONST: { // Add -> ID, CD, (ad + 2), -- if not 0 -- val
                 log.printMessage("CONST " + stash.token);
+                SymbolTable.getInstance()
+                        .addSymbol(new Symbol(arr[0],
+                                prevSymbol.classification,
+                                arr[arr.length - 1],
+                                Segment.CS));
                 break;
             }
             case ASSIGN: { //  Add -> ID, CD, (ad + 2), -- if not 0 -- val
