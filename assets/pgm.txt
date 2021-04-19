@@ -1,6 +1,9 @@
 CLASS Pgm1 {
     CONST M = 13;
     CONST N = 56;
+    VAR Y;
+    VAR X;
+    VAR Z;
 
     Y = 97;
     X = M * N + 18 - y;

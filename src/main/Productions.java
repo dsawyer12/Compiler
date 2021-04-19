@@ -62,8 +62,11 @@ public class Productions {
         reductionMap.put("DS", DP);
         // Reduction for DS
         reductionMap.put("CD", DS);
+        reductionMap.put("VD SEMI", DS);
         // Reduction for CD
         reductionMap.put("CONST SS SEMI", CD);
+        // Reduction for VD
+        reductionMap.put("VAR ID", VD);
         // Reduction for X
         reductionMap.put("S", X);
         // Reduction for S

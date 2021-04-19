@@ -11,6 +11,15 @@ N --- ID
 = --- ASSIGN
 56 --- INT
 ; --- SEMI
+VAR --- VAR
+Y --- ID
+; --- SEMI
+VAR --- VAR
+X --- ID
+; --- SEMI
+VAR --- VAR
+Z --- ID
+; --- SEMI
 Y --- ID
 = --- ASSIGN
 97 --- INT
