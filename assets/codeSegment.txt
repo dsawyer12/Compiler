@@ -1,0 +1,8 @@
+sys_exit	equ	1
+sys_read	equ	3
+sys_write	equ	4
+stdin		equ	0
+stdout		equ	1
+stderr		equ	3
+
+section .data

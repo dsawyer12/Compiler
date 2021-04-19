@@ -31,6 +31,18 @@ public class Symbol {
         this.value = value;
     }
 
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public void setClassification(Classification classification) {
+        this.classification = classification;
+    }
+
+    public void setSegment(Segment segment) {
+        this.segment = segment;
+    }
+
     public void setAddress(int address) {
         this.address = address;
     }

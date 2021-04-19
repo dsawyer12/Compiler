@@ -1,8 +1,10 @@
 package main.src;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
+import static main.enums.Classification.LABEL;
+import static main.src.Symbol.Segment.CS;
 
 public class SymbolTable {
 
@@ -23,6 +25,11 @@ public class SymbolTable {
 
     public void startTable(Symbol pgm) {
         table.put(pgm.token, pgm);
+        Symbol main = new Symbol();
+        main.setToken("main");
+        main.setClassification(LABEL);
+        main.setSegment(CS);
+        table.put("main", main);
     }
 
     public void addSymbol(Symbol symbol) {
