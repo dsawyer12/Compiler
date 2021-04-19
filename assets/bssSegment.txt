@@ -1,0 +1,13 @@
+section	.bss
+	TempChar	RESB	1	
+	testchar	RESB	1	
+	ReadInt		RESW	1
+	tempint		RESW	1
+	negflag		RESB	1
+
+	X			RESW	1
+	Y			RESW	1
+	Z			RESW	1
+	T1			RESW	1
+	T2			RESW	1
+	T3			RESW	1

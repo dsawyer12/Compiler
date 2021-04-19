@@ -12,10 +12,10 @@ N --- ID
 56 --- INT
 ; --- SEMI
 VAR --- VAR
-Y --- ID
+X --- ID
 ; --- SEMI
 VAR --- VAR
-X --- ID
+Y --- ID
 ; --- SEMI
 VAR --- VAR
 Z --- ID
@@ -28,11 +28,11 @@ X --- ID
 = --- ASSIGN
 M --- ID
 * --- MOP
-N --- ID
+2 --- INT
 + --- ADDOP
 18 --- INT
 - --- ADDOP
-y --- ID
+Y --- ID
 ; --- SEMI
 IF --- IF
 M --- ID

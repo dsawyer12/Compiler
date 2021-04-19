@@ -1,0 +1,31 @@
+section	.text	
+	global main 
+main:	nop
+
+	mov ax, [LIT97]
+	mov [Y], ax
+
+	mov ax, [M]
+	mul ax, [LIT2]
+	mov [T1], ax
+
+	mov ax, [T1]
+	add ax, [LIT18]
+	mov [T1], ax
+
+	mov ax, [T1]
+	sub ax, [Y]
+	mov [T1], ax
+
+	mov ax, [T1]
+	mov [X], ax
+
+	mov ax, [M]
+	cmp ax, [Y]
+	jge L1
+
+	mov ax, [X]
+	mov [Y], ax
+
+	L1:	nop
+

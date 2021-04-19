@@ -4,7 +4,7 @@ import main.enums.Classification;
 import main.enums.Precedence;
 
 public class Symbol {
-    public enum Segment { DS, CS }
+    public enum Segment { DS, CS, BSS }
 
     public String token;
     public Classification classification;
@@ -29,6 +29,24 @@ public class Symbol {
         this.classification = classification;
         this.segment = segment;
         this.value = value;
+    }
+
+    public void defUndefined(String token, Classification classification, Segment segment) {
+        this.token = token;
+        this.classification = classification;
+        this.segment = segment;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public void setClassification(Classification classification) {
+        this.classification = classification;
+    }
+
+    public void setSegment(Segment segment) {
+        this.segment = segment;
     }
 
     public void setAddress(int address) {

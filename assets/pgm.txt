@@ -1,12 +1,12 @@
 CLASS Pgm1 {
     CONST M = 13;
     CONST N = 56;
-    VAR Y;
     VAR X;
+    VAR Y;
     VAR Z;
 
     Y = 97;
-    X = M * N + 18 - y;
+    X = M * 2 + 18 - Y;
 
     IF M < Y THEN  {
         Y = X;

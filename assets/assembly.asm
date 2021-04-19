@@ -27,3 +27,47 @@ section .data
 	LIT97		DW	97	
 	LIT2		DW	2	
 	LIT18		DW	18	
+section	.bss
+	TempChar	RESB	1	
+	testchar	RESB	1	
+	ReadInt		RESW	1
+	tempint		RESW	1
+	negflag		RESB	1
+
+	X			RESW	1
+	Y			RESW	1
+	Z			RESW	1
+	T1			RESW	1
+	T2			RESW	1
+	T3			RESW	1
+section	.text	
+	global main 
+main:	nop
+
+	mov ax, [LIT97]
+	mov [Y], ax
+
+	mov ax, [M]
+	mul ax, [LIT2]
+	mov [T1], ax
+
+	mov ax, [T1]
+	add ax, [LIT18]
+	mov [T1], ax
+
+	mov ax, [T1]
+	sub ax, [Y]
+	mov [T1], ax
+
+	mov ax, [T1]
+	mov [X], ax
+
+	mov ax, [M]
+	cmp ax, [Y]
+	jge L1
+
+	mov ax, [X]
+	mov [Y], ax
+
+	L1:	nop
+
