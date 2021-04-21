@@ -7,23 +7,28 @@ main:
 	mov ax, [ReadInt]
 	mov [Y], ax
 
-	mov ax, [LIT3]
-	mov [Z], ax
-
-	mov ax, [Y]
-	mul WORD [Z]
-	mov [T1], ax
-
 	mov ax, [M]
-	add ax, [T1]
+	mul WORD [N]
 	mov [T1], ax
 
 	mov ax, [T1]
-	add ax, [LIT12]
+	mov [Z], ax
+
+	mov ax, [Z]
+	add ax, [Y]
 	mov [T1], ax
 
 	mov ax, [T1]
 	mov [X], ax
+
+	mov ax, [X]
+	cmp ax, [LIT20]
+	jle L1
+
+	mov ax, [LIT4]
+	mov [X], ax
+
+	L1:	nop
 
 	mov ax, [X]
 	call ConvertIntegerToString

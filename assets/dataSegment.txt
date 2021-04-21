@@ -22,7 +22,7 @@ section .data
 	num	times	6	db	'ABCDEF'
 	numEnd			equ	$-num
 
-	M		DW	7	
-	N		DW	85	
-	LIT3		DW	3	
-	LIT12		DW	12	
+	M		DW	5	
+	N		DW	3	
+	LIT20		DW	20	
+	LIT4		DW	4	

@@ -22,10 +22,10 @@ section .data
 	num	times	6	db	'ABCDEF'
 	numEnd			equ	$-num
 
-	M		DW	7	
-	N		DW	85	
-	LIT3		DW	3	
-	LIT12		DW	12	
+	M		DW	5	
+	N		DW	3	
+	LIT20		DW	20	
+	LIT4		DW	4	
 section	.bss
 	TempChar	RESB	1	
 	testchar	RESB	1	
@@ -48,23 +48,28 @@ main:
 	mov ax, [ReadInt]
 	mov [Y], ax
 
-	mov ax, [LIT3]
-	mov [Z], ax
-
-	mov ax, [Y]
-	mul WORD [Z]
-	mov [T1], ax
-
 	mov ax, [M]
-	add ax, [T1]
+	mul WORD [N]
 	mov [T1], ax
 
 	mov ax, [T1]
-	add ax, [LIT12]
+	mov [Z], ax
+
+	mov ax, [Z]
+	add ax, [Y]
 	mov [T1], ax
 
 	mov ax, [T1]
 	mov [X], ax
+
+	mov ax, [X]
+	cmp ax, [LIT20]
+	jle L1
+
+	mov ax, [LIT4]
+	mov [X], ax
+
+	L1:	nop
 
 	mov ax, [X]
 	call ConvertIntegerToString

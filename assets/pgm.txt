@@ -1,14 +1,15 @@
 CLASS Pgm1 {
-    CONST M = 7;
-    CONST N = 85;
-    VAR X;
-    VAR Y;
-    VAR Z;
+    CONST M = 5; CONST N = 3;
+    VAR X; VAR Y; VAR Z;
 
     GET Y;
 
-    Z = 3;
-    X = M + Y * Z + 12;
+    Z = M * N;
+    X = Z + Y;
+
+    IF X > 20 THEN {
+        X = 4;
+    }
 
     PRINT X;
 }
