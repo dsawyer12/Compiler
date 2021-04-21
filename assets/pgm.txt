@@ -5,11 +5,15 @@ CLASS Pgm1 {
     VAR Y;
     VAR Z;
 
+    GET Y;
+
     Z = 97;
     X = M / 2 + 18 - Y;
 
     IF M < Y THEN  {
         Y = X;
     }
+
+    PRINT Y;
 }
 

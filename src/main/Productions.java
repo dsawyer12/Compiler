@@ -17,10 +17,17 @@ public class Productions {
         // Reduction for PGM
         reductionMap.put("CLASS ID BLOCK", PGM);
         // Reduction for BLOCK
-        reductionMap.put("LB D X RB", BLOCK);
+        reductionMap.put("LB D X PS RB", BLOCK);
+        reductionMap.put("LB X PS RB", BLOCK);
         reductionMap.put("LB X RB", BLOCK);
         // Reduction for D
-        reductionMap.put("DP", D);
+        reductionMap.put("DP R SEMI", D);
+        // Reduction for PS
+        reductionMap.put("P SEMI", PS);
+        // Reduction for R
+        reductionMap.put("GET ID", R);
+        // Reduction for P
+        reductionMap.put("PRINT ID", P);
         // Reduction for DP
         reductionMap.put("DP DS", DP);
         reductionMap.put("DS", DP);

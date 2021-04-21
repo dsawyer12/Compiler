@@ -42,7 +42,12 @@ section	.bss
 	T3			RESW	1
 section	.text	
 	global main 
-main:	nop
+main:
+	again: call PrintString
+	call GetAnInteger
+
+	mov ax, [ReadInt]
+	mov [Y], ax
 
 	mov ax, [LIT97]
 	mov [Z], ax
@@ -72,4 +77,6 @@ main:	nop
 	mov [Y], ax
 
 	L1:	nop
+
+	call PrintString
 

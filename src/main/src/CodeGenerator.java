@@ -30,6 +30,7 @@ public class CodeGenerator {
         return codeGenerator;
     }
 
+    // The below String definitions is Dr. Burris's code for IO
     static final String dataDef = "sys_exit\tequ\t1\n" +
             "sys_read\tequ\t3\n" +
             "sys_write\tequ\t4\n" +
@@ -63,7 +64,78 @@ public class CodeGenerator {
 
     static final String txtDef = "section\t.text\t\n" +
             "\tglobal main \n" +
-            "main:\tnop\n";
+            "main:\n" + "\tagain: call PrintString\n"
+            + "\tcall GetAnInteger\n";
+
+    static final String IORoutines = "call ConvertIntegerToString\n" +
+            "\n" +
+            "\tmov eax, 4\n" +
+            "\tmov ebx, 1\n" +
+            "\tmov ecx, Result\n" +
+            "\tmov edx, ResultEnd\n" +
+            "\tint 80h\n" +
+            "\n" +
+            "fini:\n" +
+            "\tmov eax, sys_exit\n" +
+            "\txor ebx, ebx\n" +
+            "\tint 80h\n" +
+            "\n" +
+            "PrintString:\n" +
+            "\tpush ax\n" +
+            "\tpush dx\n" +
+            "\tmov eax, 4\n" +
+            "\tmov ebx, 1\n" +
+            "\tmov ecx, userMsg\n" +
+            "\tmov edx, lenUserMsg\n" +
+            "\tint 80h\n" +
+            "\tpop dx\n" +
+            "\tpop ax\n" +
+            "\tret\n" +
+            "\n" +
+            "GetAnInteger:\n" +
+            "\tmov eax, 3\n" +
+            "\tmov ebx, 2\n" +
+            "\tmov ecx, num\n" +
+            "\tmov edx, 6\n" +
+            "\tint 0x80\n" +
+            "\tmov edx, eax\n" +
+            "\tmov eax, 4\n" +
+            "\tmov ecx, num\n" +
+            "\tint 80h\n" +
+            "\n" +
+            "ConvertStringToInteger:\n" +
+            "\tmov ax, 0\n" +
+            "\tmov [ReadInt], ax\n" +
+            "\tmov ecx, num\n" +
+            "\tmov bx, 0\n" +
+            "\tmov bl, byte [ecx]\n" +
+            "\n" +
+            "Next:\tsub bl, '0'\n" +
+            "\tmov ax, [ReadInt]\n" +
+            "\tmov dx, 10\n" +
+            "\tmul dx\n" +
+            "\tadd ax, bx\n" +
+            "\tmov [ReadInt], ax\n" +
+            "\tmov bx, 0\n" +
+            "\tadd ecx, 1\n" +
+            "\tmov bl, byte [ecx]\n" +
+            "\tcmp bl, 0xA\n" +
+            "\tjne Next\n" +
+            "\tret\n" +
+            "\n" +
+            "ConvertIntegerToString:\n" +
+            "\tmov ebx, Result + 4\n" +
+            "\n" +
+            "ConvertLoop:\n" +
+            "\tsub dx, dx\n" +
+            "\tmov cx, 10\n" +
+            "\tdiv cx\n" +
+            "\tadd dl, '0'\n" +
+            "\tmov [ebx], dl\n" +
+            "\tdec ebx\n" +
+            "\tcmp ebx, ResultValue\n" +
+            "\tjge ConvertLoop\n" +
+            "\tret";
 
     public CodeGenerator() {
         nextLabel = 0;
@@ -130,6 +202,8 @@ public class CodeGenerator {
                 writer.write(line);
                 writer.newLine();
             }
+            codeWriter = new BufferedWriter(new FileWriter("assets/codeSegment.txt"));
+            codeWriter.append(IORoutines);
 
             writer.close();
             dataReader.close();
@@ -266,6 +340,15 @@ public class CodeGenerator {
                 code = "\t" + fix.label + ":\tnop\n";
                 writeToCodeSegment(code);
                 return "IF_S";
+            case R:
+                arg1 = fragments[1];
+                code = "\tmov ax, [ReadInt]\n" + "\tmov [" + SymbolTable.getSymbol(arg1).token + "], ax\n";
+                writeToCodeSegment(code);
+                return "R";
+            case P:
+                code = "\tcall PrintString\n";
+                writeToCodeSegment(code);
+                return "P";
         }
         return null;
     }

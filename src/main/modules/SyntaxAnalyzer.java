@@ -34,8 +34,10 @@ public class SyntaxAnalyzer {
 
     // Function table that drives the parser
     public static int[][] pFunctions = {
-            {2, 1, 2, 32, 4, 33, 38, 38, 3, 2, 10, 30, 30, 3, 30, 30, 3, 9, 11, 12, 13, 14, 18, 14, 25, 10, 25, 3, 18, 3, 18, 8, 4, 32, 38, 8, 14, 8, 10, 12, 8}, // F
-            {2, 1, 2, 18, 4, 5, 33, 34, 34, 4, 5, 10, 5, 10, 11, 11, 3, 8, 9, 10, 11, 12, 25, 13, 3, 34, 34, 11, 3, 11, 3, 4, 19, 2, 3, 13, 9, 18, 11, 13, 9}, // G
+            {2, 1, 2, 38, 4, 7, 5, 4, 5, 13, 13, 5, 4, 14, 36, 36, 5, 36, 36, 3, 11, 13, 14, 15, 16, 20, 16, 31, 31, 31, 14, 31, 3, 20, 3, 20, 8, 4, 38, 46, 8, 16, 8, 10, 12, 8}, // F
+            {2, 1, 2, 20, 4, 5, 7, 4, 5, 7, 8, 8, 4, 5, 14, 5, 14, 15, 15, 3, 8, 9, 10, 11, 12, 31, 13, 8, 5, 3, 8, 8, 15, 3, 15, 3, 4, 21, 4, 5, 13, 11, 20, 13, 15, 11}, // G
+//            {2, 1, 2, 32, 4, 33, 38, 38, 3, 2, 10, 30, 30, 3, 30, 30, 3, 9, 11, 12, 13, 14, 18, 14, 25, 10, 25, 3, 18, 3, 18, 8, 4, 32, 38, 8, 14, 8, 10, 12, 8}, // F
+//            {2, 1, 2, 18, 4, 5, 33, 34, 34, 4, 5, 10, 5, 10, 11, 11, 3, 8, 9, 10, 11, 12, 25, 13, 3, 34, 34, 11, 3, 11, 3, 4, 19, 2, 3, 13, 9, 18, 11, 13, 9}, // G
     };
 
     public static void pass1(File file) {
@@ -233,6 +235,10 @@ public class SyntaxAnalyzer {
             stash.token = CodeGenerator.getInstance().generateCode(RELOP, stash);
         } else if (handle.equals("IF B_E THEN BLOCK")) {
             stash.token = CodeGenerator.getInstance().generateCode(IF_S, stash);
+        } else if (handle.equals("GET ID")) {
+            stash.token = CodeGenerator.getInstance().generateCode(R, stash);
+        } else if (handle.equals("PRINT ID")) {
+            stash.token = CodeGenerator.getInstance().generateCode(P, stash);
         }
 
         return stash;

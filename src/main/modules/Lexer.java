@@ -227,6 +227,10 @@ public class Lexer {
                 classification = IF;
             else if (buffer.toString().equals("VAR"))
                 classification = VAR;
+            else if (buffer.toString().equals("GET"))
+                classification = GET;
+            else if (buffer.toString().equals("PRINT"))
+                classification = PRINT;
             else if (buffer.toString().equals("THEN"))
                 classification = THEN;
             else if (buffer.toString().equals("PROCEDURE"))
@@ -243,7 +247,7 @@ public class Lexer {
                 classification = CLASS;
         }
 
-//        log.printToken(buffer + " --- " + classification);
+        log.printToken(buffer + " --- " + classification);
 
         try {
             writer.append(buffer.toString()).append(" --- ").append(classification.toString());

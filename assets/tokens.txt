@@ -20,6 +20,9 @@ Y --- ID
 VAR --- VAR
 Z --- ID
 ; --- SEMI
+GET --- GET
+Y --- ID
+; --- SEMI
 Z --- ID
 = --- ASSIGN
 97 --- INT
@@ -45,4 +48,7 @@ Y --- ID
 X --- ID
 ; --- SEMI
 } --- RB
+PRINT --- PRINT
+Y --- ID
+; --- SEMI
 } --- RB
