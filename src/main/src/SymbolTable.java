@@ -43,6 +43,7 @@ public class SymbolTable {
                 sym.defUndefined(token, symbol.classification, Symbol.Segment.BSS);
                 getInstance().addSymbol(sym);
                 break;
+            case B_E: // Boolean Expression
             case SS: { // Simple Statement
                 if (prevSymbol.classification.equals(CONST)) break;
                 for (String s : fragments) {
@@ -53,10 +54,6 @@ public class SymbolTable {
                         symbol.token = symbol.token.replace(String.valueOf(a), literal);
                     } catch (NumberFormatException e) { }
                 }
-                break;
-            }
-            case B_E: {
-
                 break;
             }
         }
