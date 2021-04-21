@@ -1,6 +1,7 @@
-package main.src;
+package main.other;
 
-import java.io.BufferedReader;
+import main.src.NodeStack;
+
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;

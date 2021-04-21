@@ -20,14 +20,14 @@ Y --- ID
 VAR --- VAR
 Z --- ID
 ; --- SEMI
-Y --- ID
+Z --- ID
 = --- ASSIGN
 97 --- INT
 ; --- SEMI
 X --- ID
 = --- ASSIGN
 M --- ID
-* --- MOP
+/ --- MOP
 2 --- INT
 + --- ADDOP
 18 --- INT

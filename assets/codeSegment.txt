@@ -3,10 +3,12 @@ section	.text
 main:	nop
 
 	mov ax, [LIT97]
-	mov [Y], ax
+	mov [Z], ax
 
+	mov dx, 0
 	mov ax, [M]
-	mul ax, [LIT2]
+	mov bx, [LIT2]
+	div bx
 	mov [T1], ax
 
 	mov ax, [T1]

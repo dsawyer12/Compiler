@@ -27,13 +27,9 @@ public class SyntaxAnalyzer {
     //  'arr' is a list that is simply used for printing to the console.
     //  Run to see the handles being made as well as the reductions that happen.
     public static ArrayList<String> arr = new ArrayList<>();
-    // 'log' is a simple Logging class for console print formatting.
     public static Logger log = Logger.getInstance();
-    // 'productions' are the reduction mappings when a handle is found.
     public static Productions productions = new Productions();
-    // 'stack' is a simple Stack implementation in which the tokens are pushed and popped in compliance with the rest of the program.
     public static NodeStack<Symbol> stack = new NodeStack<>();
-    // 'prevNode' is used for comparing precedence after a reduction is made.
     public static Symbol prevSymbol;
 
     // Function table that drives the parser
@@ -158,11 +154,6 @@ public class SyntaxAnalyzer {
         stash.classification = productions.reductionMap.get(handle);
 
         stash.token = SymbolTable.pushTableEntry(stash, prevSymbol);
-
-        log.newLine();
-        log.print(handle);
-        log.newLine();
-        log.printMessage(stash.token);
 
         return stash;
     }

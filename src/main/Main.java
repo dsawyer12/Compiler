@@ -14,8 +14,6 @@ public class Main {
         lexer.scan(program);
 
         SyntaxAnalyzer.pass1(new File("assets/tokens.txt"));
-
-//        Warshall.runClosure();
     }
 }
 

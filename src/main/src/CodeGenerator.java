@@ -3,11 +3,7 @@ package main.src;
 import main.enums.Classification;
 
 import java.io.*;
-import java.util.ArrayList;
 import java.util.Map;
-
-import static main.enums.Classification.CONST;
-import static main.enums.Classification.INT;
 
 public class CodeGenerator {
     public static BufferedWriter dataWriter, codeWriter, bssWriter;
@@ -156,9 +152,6 @@ public class CodeGenerator {
 
     public String generateCode(Classification classification, Symbol symbol) {
 
-        Logger.getInstance().newLine();
-        Logger.getInstance().printMessage(symbol.token);
-
         String[] fragments = symbol.token.split(" ");
         String op, arg1, arg2;
         String code = null;
@@ -169,8 +162,6 @@ public class CodeGenerator {
                 arg2 = fragments[2];
                 code = "\tmov ax, [" +SymbolTable.getSymbol(arg2).token
                         + "]\n\tmov [" + SymbolTable.getSymbol(arg1).token + "], ax\n";
-                Logger.getInstance().newLine();
-                Logger.getInstance().printMessage(code);
                 writeToCodeSegment(code);
                 return "SS";
             case ADDOP:
@@ -190,8 +181,6 @@ public class CodeGenerator {
                             + SymbolTable.getSymbol(arg2).token
                             + "]\n\tmov [T1], ax\n";
                 }
-                Logger.getInstance().newLine();
-                Logger.getInstance().printMessage(code);
                 writeToCodeSegment(code);
                 return "T1";
             case MOP:
@@ -201,11 +190,11 @@ public class CodeGenerator {
                 if (op.equals("*")) {
                     code = "\tmov ax, ["
                             + SymbolTable.getSymbol(arg1).token
-                            + "]\n\tmul ax, ["
+                            + "]\n\tmul WORD ["
                             + SymbolTable.getSymbol(arg2).token
                             + "]\n\tmov [T1], ax\n";
                 } else if (op.equals("/")) {
-                    code = "\tmov dx, 0"
+                    code = "\tmov dx, 0\n"
                             + "\tmov ax, ["
                             + SymbolTable.getSymbol(arg1).token
                             + "]\n\tmov bx, ["
@@ -213,8 +202,6 @@ public class CodeGenerator {
                             + "]\n\tdiv bx"
                             + "\n\tmov [T1], ax\n";
                 }
-                Logger.getInstance().newLine();
-                Logger.getInstance().printMessage(code);
                 writeToCodeSegment(code);
                 return "T1";
             case RELOP:
@@ -271,16 +258,12 @@ public class CodeGenerator {
                             + "]\n\tand ax, 1"
                             + "\n\tjnz " + label + "\n";
                 }
-                Logger.getInstance().newLine();
-                Logger.getInstance().printMessage(code);
                 fixUpStack.push(new Label(label, SymbolTable.getInstance().getNextAddress()));
                 writeToCodeSegment(code);
                 return "B_E";
             case IF_S:
                 Label fix = fixUpStack.pop();
                 code = "\t" + fix.label + ":\tnop\n";
-                Logger.getInstance().newLine();
-                Logger.getInstance().printMessage(code);
                 writeToCodeSegment(code);
                 return "IF_S";
         }
