@@ -22,11 +22,10 @@ section .data
 	num	times	6	db	'ABCDEF'
 	numEnd			equ	$-num
 
-	M		DW	13
-	N		DW	56
-	LIT97		DW	97
-	LIT2		DW	2
-	LIT18		DW	18
+	M		DW	7
+	N		DW	85
+	LIT3		DW	3
+	LIT12		DW	12
 section	.bss
 	TempChar	RESB	1
 	testchar	RESB	1
@@ -43,52 +42,33 @@ section	.bss
 section	.text
 	global main
 main:
+	again: call PrintString
+	call GetAnInteger
 
-again: call PrintString
-    call GetAnInteger
-
-    mov ax, [ReadInt]
-    mov [Y], ax
-
-    call PrintString
-    call GetAnInteger
-    mov ax, [ReadInt]
-    mov [Z], ax
-
-    mov eax, 4
-	mov ebx, 1
-	mov ecx, userMsg
-	mov edx, lenUserMsg
-	int 80h
-
-	mov ax, [LIT97]
+	mov ax, [ReadInt]
 	mov [Y], ax
 
+	mov ax, [LIT3]
+	mov [Z], ax
+
+	mov ax, [Y]
+	mul WORD [Z]
+	mov [T1], ax
+
 	mov ax, [M]
-	mul WORD [LIT2]
+	add ax, [T1]
 	mov [T1], ax
 
 	mov ax, [T1]
-	add ax, [LIT18]
-	mov [T1], ax
-
-	mov ax, [T1]
-	sub ax, [Y]
+	add ax, [LIT12]
 	mov [T1], ax
 
 	mov ax, [T1]
 	mov [X], ax
 
-	mov ax, [M]
-	cmp ax, [Y]
-	jge L1
-
 	mov ax, [X]
-	mov [Y], ax
-
-	L1:	nop
-
 	call ConvertIntegerToString
+	call PrintString
 
 	mov eax, 4
 	mov ebx, 1
@@ -97,64 +77,70 @@ again: call PrintString
 	int 80h
 
 fini:
-   mov eax, sys_exit
-   xor ebx, ebx
-   int 80h
+	mov eax, sys_exit
+	xor ebx, ebx
+	int 80h
 
 PrintString:
-   push ax
-   push dx
-   mov eax, 4
-   mov ebx, 1
-   mov ecx, userMsg
-   mov edx, lenUserMsg
-   int 80h
-   pop dx
-   pop ax
-   ret
+	push    ax
+	push    dx
+
+	mov eax, 4
+	mov ebx, 1
+	mov ecx, userMsg
+	mov edx, lenUserMsg
+	int	80h
+	pop     dx
+	pop     ax
+	ret
 
 GetAnInteger:
-   mov eax, 3
-   mov ebx, 2
-   mov ecx, num
-   mov edx, 6
-   int 0x80
-   mov edx, eax
-   mov eax, 4
-   mov ecx, num
-   int 80h
+	mov eax,3
+	mov ebx,2
+	mov ecx,num
+	mov edx,6
+	int 0x80
+
+	mov edx,eax
+	mov eax, 4
+	mov ebx, 1
+	mov ecx, num
+	int 80h
 
 ConvertStringToInteger:
-   mov ax, 0
-   mov [ReadInt], ax
-   mov ecx, num
-   mov bx, 0
-   mov bl, byte [ecx]
+	mov ax, 0
+	mov [ReadInt], ax
+	mov ecx, num
 
-Next:   sub bl, '0'
-    mov ax, [ReadInt]
-    mov dx, 10
-    mul dx
-    add ax, bx
-    mov [ReadInt], ax
-    mov bx, 0
-    add ecx, 1
-    mov bl, byte [ecx]
-    cmp bl, 0xA
-    jne Next
-    ret
+	mov bx, 0
+	mov bl, byte [ecx]
+
+Next:
+    sub bl, '0'
+	mov ax, [ReadInt]
+	mov dx, 10
+	mul dx
+	add ax, bx
+	mov [ReadInt],  ax
+
+	mov bx, 0
+	add ecx, 1
+	mov bl, byte[ecx]
+
+	cmp bl, 0xA
+	jne Next
+	ret
 
 ConvertIntegerToString:
-    mov ebx, Result + 4
+	mov ebx, ResultValue + 4
 
 ConvertLoop:
-    sub dx, dx
-    mov cx, 10
-    div cx
-    add dl, '0'
-    mov [ebx], dl
-    dec ebx
-    cmp ebx, ResultValue
-    jge ConvertLoop
-    ret
-
+	sub dx, dx
+	mov cx, 10
+	div cx
+	add dl, '0'
+	mov [ebx], dl
+	dec ebx
+	cmp ebx, ResultValue
+	jge ConvertLoop
+	ret

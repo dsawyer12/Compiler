@@ -1,0 +1,31 @@
+section	.text
+	global main
+main:
+	again: call PrintString
+	call GetAnInteger
+
+	mov ax, [ReadInt]
+	mov [Y], ax
+
+	mov ax, [LIT3]
+	mov [Z], ax
+
+	mov ax, [Y]
+	mul WORD [Z]
+	mov [T1], ax
+
+	mov ax, [M]
+	add ax, [T1]
+	mov [T1], ax
+
+	mov ax, [T1]
+	add ax, [LIT12]
+	mov [T1], ax
+
+	mov ax, [T1]
+	mov [X], ax
+
+	mov ax, [X]
+	call ConvertIntegerToString
+	call PrintString
+

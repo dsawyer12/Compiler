@@ -38,7 +38,7 @@ public class CodeGenerator {
             "stdout\t\tequ\t1\n" +
             "stderr\t\tequ\t3\n" +
             "\n" +
-            "section .data\t\n" +
+            "section .data\n" +
             "\tuserMsg\t\t\tdb\t'Enter an integer(less than 32,765): '\n" +
             "\tlenUserMsg\t\tequ\t$-userMsg\n" +
             "\tdisplayMsg\t\tdb\t'You entered: '\n" +
@@ -50,7 +50,7 @@ public class CodeGenerator {
             "\tResult\t\t\tdb\t'Ans = '\n" +
             "\tResultValue\t\tdb\t'aaaaa'\n" +
             "\t\t\t\t\tDb\t0xA\n" +
-            "\tResultEnd\t\tequ\t$-Result   \n" +
+            "\tResultEnd\t\tequ\t$-Result\n" +
             "\n" +
             "\tnum\ttimes\t6\tdb\t'ABCDEF'\n" +
             "\tnumEnd\t\t\tequ\t$-num\n";
@@ -62,14 +62,13 @@ public class CodeGenerator {
             "\ttempint\t\tRESW\t1\n" +
             "\tnegflag\t\tRESB\t1\n";
 
-    static final String txtDef = "section\t.text\t\n" +
-            "\tglobal main \n" +
-            "main:\n" + "\tagain: call PrintString\n"
-            + "\tcall GetAnInteger\n";
+    static final String txtDef = "section\t.text\n" +
+            "\tglobal main\n" +
+            "main:\n" +
+            "\tagain: call PrintString\n" +
+            "\tcall GetAnInteger\n";
 
-    static final String IORoutines = "call ConvertIntegerToString\n" +
-            "\n" +
-            "\tmov eax, 4\n" +
+    static final String IORoutines = "\tmov eax, 4\n" +
             "\tmov ebx, 1\n" +
             "\tmov ecx, Result\n" +
             "\tmov edx, ResultEnd\n" +
@@ -81,25 +80,28 @@ public class CodeGenerator {
             "\tint 80h\n" +
             "\n" +
             "PrintString:\n" +
-            "\tpush ax\n" +
-            "\tpush dx\n" +
+            "\tpush    ax\n" +
+            "\tpush    dx\n" +
+            "\n" +
             "\tmov eax, 4\n" +
             "\tmov ebx, 1\n" +
             "\tmov ecx, userMsg\n" +
             "\tmov edx, lenUserMsg\n" +
-            "\tint 80h\n" +
-            "\tpop dx\n" +
-            "\tpop ax\n" +
+            "\tint\t80h\n" +
+            "\tpop     dx\n" +
+            "\tpop     ax\n" +
             "\tret\n" +
             "\n" +
             "GetAnInteger:\n" +
-            "\tmov eax, 3\n" +
-            "\tmov ebx, 2\n" +
-            "\tmov ecx, num\n" +
-            "\tmov edx, 6\n" +
+            "\tmov eax,3\n" +
+            "\tmov ebx,2\n" +
+            "\tmov ecx,num\n" +
+            "\tmov edx,6\n" +
             "\tint 0x80\n" +
-            "\tmov edx, eax\n" +
+            "\n" +
+            "\tmov edx,eax\n" +
             "\tmov eax, 4\n" +
+            "\tmov ebx, 1\n" +
             "\tmov ecx, num\n" +
             "\tint 80h\n" +
             "\n" +
@@ -107,24 +109,28 @@ public class CodeGenerator {
             "\tmov ax, 0\n" +
             "\tmov [ReadInt], ax\n" +
             "\tmov ecx, num\n" +
+            "\n" +
             "\tmov bx, 0\n" +
             "\tmov bl, byte [ecx]\n" +
             "\n" +
-            "Next:\tsub bl, '0'\n" +
+            "Next:\n" +
+            "    sub bl, '0'\n" +
             "\tmov ax, [ReadInt]\n" +
             "\tmov dx, 10\n" +
             "\tmul dx\n" +
             "\tadd ax, bx\n" +
-            "\tmov [ReadInt], ax\n" +
+            "\tmov [ReadInt],  ax\n" +
+            "\n" +
             "\tmov bx, 0\n" +
             "\tadd ecx, 1\n" +
-            "\tmov bl, byte [ecx]\n" +
+            "\tmov bl, byte[ecx]\n" +
+            "\n" +
             "\tcmp bl, 0xA\n" +
             "\tjne Next\n" +
             "\tret\n" +
             "\n" +
             "ConvertIntegerToString:\n" +
-            "\tmov ebx, Result + 4\n" +
+            "\tmov ebx, ResultValue + 4\n" +
             "\n" +
             "ConvertLoop:\n" +
             "\tsub dx, dx\n" +
@@ -202,8 +208,7 @@ public class CodeGenerator {
                 writer.write(line);
                 writer.newLine();
             }
-            codeWriter = new BufferedWriter(new FileWriter("assets/codeSegment.txt"));
-            codeWriter.append(IORoutines);
+            writer.append(IORoutines);
 
             writer.close();
             dataReader.close();
@@ -346,7 +351,10 @@ public class CodeGenerator {
                 writeToCodeSegment(code);
                 return "R";
             case P:
-                code = "\tcall PrintString\n";
+                arg1 = fragments[1];
+                code = "\tmov ax, [" + SymbolTable.getSymbol(arg1).token
+                        +  "]\n\tcall ConvertIntegerToString\n" +
+                        "\tcall PrintString\n";
                 writeToCodeSegment(code);
                 return "P";
         }
