@@ -247,10 +247,8 @@ public class Lexer {
                 classification = CLASS;
         }
 
-        log.printToken(buffer + " --- " + classification);
-
         try {
-            writer.append(buffer.toString()).append(" --- ").append(classification.toString());
+            writer.append(String.format("%10s%20s", buffer, classification));
             writer.newLine();
         } catch (IOException e) {
             log.printException(e);

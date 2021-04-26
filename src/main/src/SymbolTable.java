@@ -1,7 +1,11 @@
 package main.src;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import static main.enums.Classification.CONST;
 import static main.enums.Classification.INT;
@@ -48,11 +52,12 @@ public class SymbolTable {
                 if (prevSymbol.classification.equals(CONST)) break;
                 for (String s : fragments) {
                     try {
+                        // Here we are looking for numeric literals to store in the symbol table.
                         int a = Integer.parseInt(s);
                         String literal = "LIT" + a;
                         getInstance().addSymbol(new Symbol(literal, INT, a, Symbol.Segment.DS));
                         symbol.token = symbol.token.replace(String.valueOf(a), literal);
-                    } catch (NumberFormatException e) { }
+                    } catch (NumberFormatException ignored) { }
                 }
                 break;
             }
@@ -75,18 +80,21 @@ public class SymbolTable {
         return table;
     }
 
-    public void printSet() {
-        Logger log = Logger.getInstance();
-        log.newLine();
-        log.printMeta("Symbol\t\tClass\t\tValue\t\tAddress\t\tSegment");
-        for (Map.Entry<Object, Symbol> item : table.entrySet()) {
-            log.newLine();
-            log.printMessage(item.getValue().token + "\t");
-            log.printMessage(item.getValue().classification.toString() + "\t");
-            if (item.getValue().value != null)
-                log.printMessage(item.getValue().value + "\t");
-            log.printMessage(item.getValue().address + "\t");
-            log.printMessage(item.getValue().segment.toString() + "\t");
+    public void writeSymbolTable() {
+        try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter("assets/symbolTable.txt"));
+            writer.append(String.format("%10s%10s%10s%10s%10s", "Symbol", "Class", "Value", "Address", "Segment"));
+            for (Map.Entry<Object, Symbol> item : table.entrySet()) {
+                writer.newLine();
+                writer.append(String.format("%10s", item.getValue().token));
+                writer.append(String.format("%10s", item.getValue().classification.toString()));
+                writer.append(String.format("%10s", Objects.requireNonNullElse(item.getValue().value, "?")));
+                writer.append(String.format("%10s", item.getValue().address));
+                writer.append(String.format("%10s", item.getValue().segment));
+            }
+            writer.close();
+        } catch (IOException e) {
+            Logger.getInstance().printException(e);
         }
     }
 
@@ -94,7 +102,7 @@ public class SymbolTable {
         try {
             int a = Integer.parseInt(key);
             key = "LIT" + a;
-        } catch (NumberFormatException e) { }
+        } catch (NumberFormatException ignored) { }
         return table.get(key);
     }
 }

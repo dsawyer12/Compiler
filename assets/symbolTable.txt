@@ -1,0 +1,12 @@
+    Symbol     Class     Value   Address   Segment
+      Pgm1       PGM         ?         0        CS
+         M        CD         5         0        DS
+         N        CD         3         2        DS
+         X        VD         ?         4       BSS
+         Y        VD         ?         6       BSS
+         Z        VD         ?         8       BSS
+     LIT20       INT        20        10        DS
+      LIT4       INT         4        12        DS
+        T1       INT         ?        14       BSS
+        T2       INT         ?        16       BSS
+        T3       INT         ?        18       BSS
