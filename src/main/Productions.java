@@ -21,13 +21,14 @@ public class Productions {
         reductionMap.put("LB X PS RB", BLOCK);
         reductionMap.put("LB X RB", BLOCK);
         // Reduction for D
-        reductionMap.put("DP R SEMI", D);
-        // Reduction for PS
-        reductionMap.put("P SEMI", PS);
+        reductionMap.put("DP RS", D);
+        // Reduction for RS
+        reductionMap.put("R", RS);
         // Reduction for R
-        reductionMap.put("GET ID", R);
-        // Reduction for P
-        reductionMap.put("PRINT ID", P);
+        reductionMap.put("R RI SEMI", R);
+        reductionMap.put("RI SEMI", R);
+        // Reduction for RI
+        reductionMap.put("GET ID", RI);
         // Reduction for DP
         reductionMap.put("DP DS", DP);
         reductionMap.put("DS", DP);
@@ -47,6 +48,10 @@ public class Productions {
         // Reduction for Y
         reductionMap.put("IF_S", Y);
         reductionMap.put("WHILE_S", Y);
+        // Reduction for PS
+        reductionMap.put("P SEMI", PS);
+        // Reduction for P
+        reductionMap.put("PRINT ID", P);
         // Reduction for SL
         reductionMap.put("S SS SEMI", SL);
         reductionMap.put("SS SEMI", SL);

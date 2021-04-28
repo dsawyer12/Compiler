@@ -7,6 +7,9 @@ main:
 	mov ax, [ReadInt]
 	mov [Y], ax
 
+	mov ax, [ReadInt]
+	mov [Z], ax
+
 	mov ax, [M]
 	mul WORD [N]
 	mov [T1], ax

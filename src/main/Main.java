@@ -2,6 +2,7 @@ package main;
 
 import main.modules.Lexer;
 import main.modules.SyntaxAnalyzer;
+import main.other.Warshall;
 
 import java.io.File;
 
@@ -14,6 +15,8 @@ public class Main {
         lexer.scan(program);
 
         SyntaxAnalyzer.pass1(new File("assets/tokens.txt"));
+
+//        Warshall.runClosure();
     }
 }
 

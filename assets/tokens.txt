@@ -23,6 +23,9 @@
        GET                 GET
          Y                  ID
          ;                SEMI
+       GET                 GET
+         Z                  ID
+         ;                SEMI
          Z                  ID
          =              ASSIGN
          M                  ID

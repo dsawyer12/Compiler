@@ -3,6 +3,7 @@ CLASS Pgm1 {
     VAR X; VAR Y; VAR Z;
 
     GET Y;
+    GET Z;
 
     Z = M * N;
     X = Z + Y;
