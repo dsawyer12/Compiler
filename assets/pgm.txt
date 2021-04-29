@@ -1,17 +1,16 @@
-CLASS Pgm1 {
-    CONST M = 5; CONST N = 3;
-    VAR X; VAR Y; VAR Z;
+CLASS Pgm5 {
+    VAR N; VAR FAC; VAR I;
 
-    GET Y;
-    GET Z;
+    GET N;
 
-    Z = M * N;
-    X = Z + Y;
+    FAC = 1;
+    I = 1;
 
-    IF X > 20 THEN {
-        X = 4;
+    WHILE I <= N DO {
+       FAC = FAC * I;
+       I = I + 1;
     }
 
-    PRINT X;
+    PRINT FAC;
 }
 

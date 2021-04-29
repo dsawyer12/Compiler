@@ -1,55 +1,46 @@
      CLASS               CLASS
-      Pgm1                  ID
+      Pgm5                  ID
          {                  LB
-     CONST               CONST
-         M                  ID
-         =              ASSIGN
-         5                 INT
-         ;                SEMI
-     CONST               CONST
+       VAR                 VAR
          N                  ID
-         =              ASSIGN
-         3                 INT
          ;                SEMI
        VAR                 VAR
-         X                  ID
+       FAC                  ID
          ;                SEMI
        VAR                 VAR
-         Y                  ID
-         ;                SEMI
-       VAR                 VAR
-         Z                  ID
+         I                  ID
          ;                SEMI
        GET                 GET
-         Y                  ID
+         N                  ID
          ;                SEMI
-       GET                 GET
-         Z                  ID
-         ;                SEMI
-         Z                  ID
+       FAC                  ID
          =              ASSIGN
-         M                  ID
+         1                 INT
+         ;                SEMI
+         I                  ID
+         =              ASSIGN
+         1                 INT
+         ;                SEMI
+     WHILE               WHILE
+         I                  ID
+        <=               RELOP
+         N                  ID
+        DO                  DO
+         {                  LB
+       FAC                  ID
+         =              ASSIGN
+       FAC                  ID
          *                 MOP
-         N                  ID
+         I                  ID
          ;                SEMI
-         X                  ID
+         I                  ID
          =              ASSIGN
-         Z                  ID
+         I                  ID
          +               ADDOP
-         Y                  ID
-         ;                SEMI
-        IF                  IF
-         X                  ID
-         >               RELOP
-        20                 INT
-      THEN                THEN
-         {                  LB
-         X                  ID
-         =              ASSIGN
-         4                 INT
+         1                 INT
          ;                SEMI
          }                  RB
      PRINT               PRINT
-         X                  ID
+       FAC                  ID
          ;                SEMI
          }                  RB

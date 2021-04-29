@@ -1,39 +1,41 @@
 section	.text
 	global main
 main:
-	again: call PrintString
+
+	call PrintString
 	call GetAnInteger
 
 	mov ax, [ReadInt]
-	mov [Y], ax
+	mov [N], ax
 
-	mov ax, [ReadInt]
-	mov [Z], ax
+	mov ax, [LIT1]
+	mov [FAC], ax
 
-	mov ax, [M]
-	mul WORD [N]
+	mov ax, [LIT1]
+	mov [I], ax
+
+	L2:	nop
+	mov ax, [I]
+	cmp ax, [N]
+	jg L1
+
+	mov ax, [FAC]
+	mul WORD [I]
 	mov [T1], ax
 
 	mov ax, [T1]
-	mov [Z], ax
+	mov [FAC], ax
 
-	mov ax, [Z]
-	add ax, [Y]
-	mov [T1], ax
+	mov ax, [I]
+	add ax, [LIT1]
+	mov [T2], ax
 
-	mov ax, [T1]
-	mov [X], ax
+	mov ax, [T2]
+	mov [I], ax
 
-	mov ax, [X]
-	cmp ax, [LIT20]
-	jle L1
-
-	mov ax, [LIT4]
-	mov [X], ax
-
+	jmp	L2
 	L1:	nop
 
-	mov ax, [X]
+	mov ax, [FAC]
 	call ConvertIntegerToString
-	call PrintString
 
