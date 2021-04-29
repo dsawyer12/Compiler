@@ -5,6 +5,8 @@ import main.enums.Classification;
 import java.io.*;
 import java.util.Map;
 
+import static main.enums.Classification.WHILE;
+
 public class CodeGenerator {
     public static BufferedWriter dataWriter, codeWriter, bssWriter;
     public static int nextLabel;
@@ -20,7 +22,7 @@ public class CodeGenerator {
     }
 
     public NodeStack<Label> fixUpStack;
-//    public NodeStack<Label> endStack;
+    public NodeStack<Label> endStack;
 
     private static CodeGenerator codeGenerator = null;
 
@@ -30,7 +32,7 @@ public class CodeGenerator {
         return codeGenerator;
     }
 
-    // The below String definitions is Dr. Burris's code for IO
+    // The below String definitions are Dr. Burris's code to concatenate
     static final String dataDef = "sys_exit\tequ\t1\n" +
             "sys_read\tequ\t3\n" +
             "sys_write\tequ\t4\n" +
@@ -64,9 +66,7 @@ public class CodeGenerator {
 
     static final String txtDef = "section\t.text\n" +
             "\tglobal main\n" +
-            "main:\n" +
-            "\tagain: call PrintString\n" +
-            "\tcall GetAnInteger\n";
+            "main:\n";
 
     static final String IORoutines = "\tmov eax, 4\n" +
             "\tmov ebx, 1\n" +
@@ -146,7 +146,7 @@ public class CodeGenerator {
     public CodeGenerator() {
         nextLabel = 0;
         fixUpStack = new NodeStack<>();
-//        endStack = new NodeStack<>();
+        endStack = new NodeStack<>();
 
         try {
             dataWriter = new BufferedWriter(new FileWriter("assets/dataSegment.txt"));
@@ -229,8 +229,8 @@ public class CodeGenerator {
         }
     }
 
-    public String generateCode(Classification classification, Symbol symbol) {
-
+    public String generateCode(Classification classification, Symbol symbol, Symbol prevSymbol) {
+        // Separate the token into individual fragments for code generation
         String[] fragments = symbol.token.split(" ");
         String op, arg1, arg2;
         String code = null;
@@ -247,31 +247,35 @@ public class CodeGenerator {
                 op = fragments[1];
                 arg1 = fragments[0];
                 arg2 = fragments[2];
+                String temp = SymbolTable.getNextTemp(arg1, arg2).token;
+
                 if (op.equals("+")) {
                     code = "\tmov ax, ["
                             + SymbolTable.getSymbol(arg1).token
                             + "]\n\tadd ax, ["
                             + SymbolTable.getSymbol(arg2).token
-                            + "]\n\tmov [T1], ax\n";
+                            + "]\n\tmov [" + temp + "], ax\n";
                 } else if (op.equals("-")) {
                     code = "\tmov ax, ["
                             + SymbolTable.getSymbol(arg1).token
                             + "]\n\tsub ax, ["
                             + SymbolTable.getSymbol(arg2).token
-                            + "]\n\tmov [T1], ax\n";
+                            + "]\n\tmov [" + temp + "], ax\n";
                 }
                 writeToCodeSegment(code);
-                return "T1";
+                return temp;
             case MOP:
                 op = fragments[1];
                 arg1 = fragments[0];
                 arg2 = fragments[2];
+                String tempp = SymbolTable.getNextTemp(arg1, arg2).token;
+
                 if (op.equals("*")) {
                     code = "\tmov ax, ["
                             + SymbolTable.getSymbol(arg1).token
                             + "]\n\tmul WORD ["
                             + SymbolTable.getSymbol(arg2).token
-                            + "]\n\tmov [T1], ax\n";
+                            + "]\n\tmov [" + tempp + "], ax\n";
                 } else if (op.equals("/")) {
                     code = "\tmov dx, 0\n"
                             + "\tmov ax, ["
@@ -279,10 +283,10 @@ public class CodeGenerator {
                             + "]\n\tmov bx, ["
                             + SymbolTable.getSymbol(arg2).token
                             + "]\n\tdiv bx"
-                            + "\n\tmov [T1], ax\n";
+                            + "\n\tmov [" + tempp + "], ax\n";
                 }
                 writeToCodeSegment(code);
-                return "T1";
+                return tempp;
             case RELOP:
                 String label = getNextLabel();
                 if (fragments[0].equals("ODD")) {
@@ -337,24 +341,41 @@ public class CodeGenerator {
                             + "]\n\tand ax, 1"
                             + "\n\tjnz " + label + "\n";
                 }
-                fixUpStack.push(new Label(label, SymbolTable.getInstance().getNextAddress()));
-                writeToCodeSegment(code);
+                if (prevSymbol.classification.equals(WHILE)) { // While loop code generation
+                    StringBuilder codeBuilder = new StringBuilder();
+                    Label wLabel = new Label(getNextLabel(), SymbolTable.getInstance().getNextAddress());
+                    fixUpStack.push(wLabel);
+                    codeBuilder.append("\t").append(wLabel.label).append(":\tnop\n").append(code);
+                    writeToCodeSegment(codeBuilder.toString());
+                    endStack.push(new Label(label, SymbolTable.getInstance().getNextAddress()));
+                } else {
+                    fixUpStack.push(new Label(label, SymbolTable.getInstance().getNextAddress()));
+                    writeToCodeSegment(code);
+                }
                 return "B_E";
             case IF_S:
-                Label fix = fixUpStack.pop();
-                code = "\t" + fix.label + ":\tnop\n";
+                Label iFix = fixUpStack.pop();
+                code = "\t" + iFix.label + ":\tnop\n";
                 writeToCodeSegment(code);
                 return "IF_S";
-            case R:
-                arg1 = fragments[1];
-                code = "\tmov ax, [ReadInt]\n" + "\tmov [" + SymbolTable.getSymbol(arg1).token + "], ax\n";
+            case WHILE_S:
+                Label wFix = fixUpStack.pop();
+                Label wEnd = endStack.pop();
+                code = "\tjmp\t" + wFix.label + "\n"
+                        + "\t" + wEnd.label + ":\tnop\n";
                 writeToCodeSegment(code);
-                return "R";
+                return "WHILE_S";
+            case RI:
+                arg1 = fragments[1];
+                code = "\tcall PrintString\n" +
+                        "\tcall GetAnInteger\n" +
+                        "\n\tmov ax, [ReadInt]\n" + "\tmov [" + SymbolTable.getSymbol(arg1).token + "], ax\n";
+                writeToCodeSegment(code);
+                return "RI";
             case P:
                 arg1 = fragments[1];
                 code = "\tmov ax, [" + SymbolTable.getSymbol(arg1).token
-                        +  "]\n\tcall ConvertIntegerToString\n" +
-                        "\tcall PrintString\n";
+                        +  "]\n\tcall ConvertIntegerToString\n";
                 writeToCodeSegment(code);
                 return "P";
         }

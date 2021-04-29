@@ -15,6 +15,7 @@ public class SymbolTable {
     private static SymbolTable symbolTable = null;
     public static Map<Object, Symbol> table = new LinkedHashMap<>();
     private int address;
+    private static int temps, currentTemp;
 
     public static SymbolTable getInstance() {
         if (symbolTable == null)
@@ -25,6 +26,8 @@ public class SymbolTable {
     public SymbolTable() {
         table = new LinkedHashMap<>();
         this.address = 0;
+        temps = 6;
+        currentTemp = 0;
     }
 
     public void startTable(Symbol pgm) {
@@ -74,6 +77,26 @@ public class SymbolTable {
         int temp = address;
         address += 2;
         return temp;
+    }
+
+    // Add 6 Temp variables to the symbol table
+    public static void addTemps() {
+        for (int i = 0; i < temps; i++) {
+            Symbol symbol = new Symbol();
+            symbol.defUndefined(("T"+i), INT, Symbol.Segment.BSS);
+            getInstance().addSymbol(symbol);
+        }
+    }
+
+    // Check whether we need to use a new temp variable or not and return the appropriate one.
+    public static Symbol getNextTemp(String arg1, String arg2) {
+        for (int i = 0; i < temps; i++) {
+            if (arg1.equals("T" + i) || arg2.equals("T" + i))
+                return table.get("T" + currentTemp);
+        }
+        // Recycle the temps by using modulo
+        currentTemp = ++currentTemp % temps;
+        return table.get("T" + currentTemp);
     }
 
     public static Map<Object, Symbol> getTable() {

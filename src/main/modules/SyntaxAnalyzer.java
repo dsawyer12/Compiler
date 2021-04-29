@@ -17,8 +17,8 @@ public class SyntaxAnalyzer {
     /*
         ANYTHING ENCLOSED IN
 
-        START --------------------------------------------------------
-        END --------------------------------------------------------
+        START PRINT --------------------------------------------------------
+        END PRINT --------------------------------------------------------
 
         IS SIMPLY FOR CONSOLE PRINTING AND FORMATTING. IT CAN BE IGNORED OR DELETED,
          AS IT HAS NO DIRECT RELATION TO THE PARSING PROCESS.
@@ -28,16 +28,13 @@ public class SyntaxAnalyzer {
     //  Run to see the handles being made as well as the reductions that happen.
     public static ArrayList<String> arr = new ArrayList<>();
     public static Logger log = Logger.getInstance();
+
+    // A production map used for reducing a handle when found.
     public static Productions productions = new Productions();
     public static NodeStack<Symbol> stack = new NodeStack<>();
     public static Symbol prevSymbol;
 
-    // Precedence function table that drives the parser
-//    public static int[][] pFunctions = {
-//            {2, 1, 2, 38, 4, 7, 5, 4, 5, 13, 13, 5, 4, 14, 36, 36, 5, 36, 36, 3, 11, 13, 14, 15, 16, 20, 16, 31, 31, 31, 14, 31, 3, 20, 3, 20, 8, 4, 38, 46, 8, 16, 8, 10, 12, 8}, // F
-//            {2, 1, 2, 20, 4, 5, 7, 4, 5, 7, 8, 8, 4, 5, 14, 5, 14, 15, 15, 3, 8, 9, 10, 11, 12, 31, 13, 8, 5, 3, 8, 8, 15, 3, 15, 3, 4, 21, 4, 5, 13, 11, 20, 13, 15, 11}, // G
-//    };
-
+    // Precedence function table that drives the parser.
     public static int[][] pFunctions = {
             {2, 1, 2, 38, 4, 7, 38, 5, 42, 4, 5, 49, 49, 5, 4, 14, 36, 36, 5, 36, 36, 3, 11, 13, 14, 15, 16, 20, 16, 31, 31, 31, 14, 31, 3, 20, 3, 20, 8, 4, 38, 49, 8, 16, 8, 10, 12, 8}, // F
             {2, 1, 2, 20, 4, 5, 7, 42, 8, 4, 5, 7, 8, 8, 4, 5, 14, 5, 14, 15, 15, 3, 8, 9, 10, 11, 12, 31, 13, 43, 5, 3, 8, 8, 15, 3, 15, 3, 4, 21, 4, 5, 13, 11, 20, 13, 15, 11}, // G
@@ -67,16 +64,10 @@ public class SyntaxAnalyzer {
 
                 handleP1Token(token, classification);
             }
-            // When no more tokens are found, we still need to push the program-delimiter into the stack and continue.
+            // When no more tokens are found, push the closing program-delimiter into the stack and continue.
             handleP1Token("$", $);
 
-            // Add 3 Temp symbols to the symbol table.
-            for (int i = 1; i < 4; i++) {
-                Symbol symbol = new Symbol();
-                symbol.defUndefined(("T"+i), INT, Segment.BSS);
-                SymbolTable.getInstance().addSymbol(symbol);
-            }
-
+            SymbolTable.addTemps();
             SymbolTable.getInstance().writeSymbolTable();
             CodeGenerator.getInstance().appendTableData(SymbolTable.getTable());
             pass2(file);
@@ -93,28 +84,28 @@ public class SyntaxAnalyzer {
 
         if (f < g) { // 'prevNode' YIELDS in precedence.
             prevSymbol.precedence = YIELDS;
-            // START --------------------------------------------------------
+            // START PRINT --------------------------------------------------------
             arr.add(prevSymbol.classification.toString());
             arr.add(" < ");
             log.printProgress(arr, classification);
-            // END --------------------------------------------------------
+            // END PRINT --------------------------------------------------------
 
             prevSymbol = new Symbol(token, classification, null);
             stack.push(prevSymbol);
         }
         else if (f == g) { // 'prevNode' EQUALS in precedence.
             prevSymbol.precedence = EQUALS;
-            // START --------------------------------------------------------
+            // START PRINT --------------------------------------------------------
             arr.add(prevSymbol.classification.toString());
             arr.add(" = ");
             log.printProgress(arr, classification);
-            // END --------------------------------------------------------
+            // END PRINT --------------------------------------------------------
 
             prevSymbol = new Symbol(token, classification, null);
             stack.push(prevSymbol);
         }
         else { // 'prevNode' TAKES precedence. Reduce handle.
-            // START --------------------------------------------------------
+            // START PRINT --------------------------------------------------------
             arr.add(prevSymbol.classification.toString());
             arr.add(" > ");
             log.printHandle(arr, classification);
@@ -129,10 +120,12 @@ public class SyntaxAnalyzer {
             arr.remove(i);
             i = arr.size() - 1;
             arr.remove(i);
-            // END --------------------------------------------------------
+            // END PRINT --------------------------------------------------------
 
             Symbol reduction = reduceP1Handle();
+            // After a reduction, compare precedence between prevSymbol and the new reduced symbol...
             handleP1Token(reduction.token, reduction.classification);
+            // ...Then compare the new reduced symbol with following one.
             handleP1Token(token, classification);
         }
     }
@@ -226,21 +219,26 @@ public class SyntaxAnalyzer {
         stash.token = tb.toString().trim();
         stash.classification = productions.reductionMap.get(handle);
 
+        // Call the Code Generator to generate code based on the reduction that was made.
+        if (handle.equals("LP E RP"))
+            stash.token = stash.token.replace("(", "").replace(")", "").trim();
         if (handle.equals("ID ASSIGN E")) {
             if (!prevSymbol.classification.equals(CONST))
-                stash.token = CodeGenerator.getInstance().generateCode(ASSIGN, stash);
+                stash.token = CodeGenerator.getInstance().generateCode(ASSIGN, stash, prevSymbol);
         } else if (handle.equals("TERM MOP F")) {
-            stash.token = CodeGenerator.getInstance().generateCode(MOP, stash);
+            stash.token = CodeGenerator.getInstance().generateCode(MOP, stash, prevSymbol);
         } else if (handle.equals("EXP ADDOP T")) {
-            stash.token = CodeGenerator.getInstance().generateCode(ADDOP, stash);
+            stash.token = CodeGenerator.getInstance().generateCode(ADDOP, stash, prevSymbol);
         } else if (handle.equals("E RELOP E")) {
-            stash.token = CodeGenerator.getInstance().generateCode(RELOP, stash);
+            stash.token = CodeGenerator.getInstance().generateCode(RELOP, stash, prevSymbol);
         } else if (handle.equals("IF B_E THEN BLOCK")) {
-            stash.token = CodeGenerator.getInstance().generateCode(IF_S, stash);
+            stash.token = CodeGenerator.getInstance().generateCode(IF_S, stash, prevSymbol);
+        } else if (handle.equals("WHILE B_E DO BLOCK")) {
+            stash.token = CodeGenerator.getInstance().generateCode(WHILE_S, stash, prevSymbol);
         } else if (handle.equals("GET ID")) {
-            stash.token = CodeGenerator.getInstance().generateCode(R, stash);
+            stash.token = CodeGenerator.getInstance().generateCode(RI, stash, prevSymbol);
         } else if (handle.equals("PRINT ID")) {
-            stash.token = CodeGenerator.getInstance().generateCode(P, stash);
+            stash.token = CodeGenerator.getInstance().generateCode(P, stash, prevSymbol);
         }
 
         return stash;
